@@ -22,7 +22,6 @@ public:
 	AMyCharacter();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	//Default character state   
@@ -132,6 +131,8 @@ protected:
 	UAnimMontage* FireMontage;
 	void PlayFireMontage();
 
+	class UCombatComponent* CombatComponent;
+
 public:	
 
 	FORCEINLINE void SetOverlappingWeapon(AWeapon* Weapon) { OverlappingWeapon = Weapon; }
@@ -142,7 +143,6 @@ public:
 
 	FORCEINLINE bool GetFireState() const { return bFiring; }
 
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input

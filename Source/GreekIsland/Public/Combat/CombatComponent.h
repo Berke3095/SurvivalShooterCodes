@@ -19,13 +19,13 @@ public:
 	friend class AMyCharacter;
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
+	FVector HitTarget;
+
 public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 		

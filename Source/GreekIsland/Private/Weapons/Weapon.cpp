@@ -7,6 +7,8 @@
 #include "Components/WidgetComponent.h"
 #include "Characters/MyCharacter.h"
 #include "Animation/AnimationAsset.h"
+#include "Engine/SkeletalMeshSocket.h" 
+#include "Weapons/Projectile.h"
 
 // Sets default values
 AWeapon::AWeapon()
@@ -33,7 +35,6 @@ AWeapon::AWeapon()
 	PickupWidget->SetupAttachment(RootComponent);
 }
 
-// Called when the game starts or when spawned
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay(); 
@@ -78,15 +79,42 @@ void AWeapon::ShowPickupWidget(bool bShowWidget)
 	}
 }
 
-void AWeapon::Fire()
+void AWeapon::Fire(const FVector& HitTarget)
 {
+	APawn* InstigatorPawn = Cast<APawn>(GetOwner()); //Player is the Instigator
 	if (FireAnimation)
 	{
 		WeaponMesh->PlayAnimation(FireAnimation, false);
 	}
+
+	//Getting the location of weapon muzzle
+	const USkeletalMeshSocket* MuzzleFlashSocket = WeaponMesh->GetSocketByName(FName("MuzzleFlash"));
+	if (MuzzleFlashSocket)
+	{
+		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(WeaponMesh);
+		FVector ToTarget = HitTarget - SocketTransform.GetLocation(); //Vector from muzzle to hit location
+		FRotator TargetRotation = ToTarget.Rotation(); //Vector direction
+		if (ProjectileClass && InstigatorPawn)
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = GetOwner(); //Player is the owner
+			SpawnParams.Instigator = InstigatorPawn;
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Spawning projectile"));
+				//Spawn the bullet
+				World->SpawnActor<AProjectile>(
+					ProjectileClass,
+					SocketTransform.GetLocation(),
+					TargetRotation,
+					SpawnParams
+				);
+			}
+		}
+	}
 }
 
-// Called every frame
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

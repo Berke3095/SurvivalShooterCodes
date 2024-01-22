@@ -16,7 +16,6 @@ public:
 	AWeapon();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	//Sphere component
@@ -39,6 +38,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Effects")
 	class UAnimationAsset* FireAnimation;
+	
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AProjectile> ProjectileClass;
 
 public:	
 
@@ -48,8 +50,7 @@ public:
 	//Pickup widget visibility
 	void ShowPickupWidget(bool bShowWidget);
 
-	void Fire();
+	void Fire(const FVector& HitTarget);
 
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 };

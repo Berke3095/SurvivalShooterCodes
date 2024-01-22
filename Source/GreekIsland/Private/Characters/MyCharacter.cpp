@@ -11,6 +11,7 @@
 #include "Weapons/Weapon.h"
 #include "Characters/CharacterStates.h"
 #include "Characters/MyCharacterAnimInstance.h"
+#include "Combat/CombatComponent.h"
 
 
 // Sets default values
@@ -36,7 +37,7 @@ AMyCharacter::AMyCharacter()
 	Groom->SetupAttachment(GetMesh());
 
 }
-// Called when the game starts or when spawned
+
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -72,7 +73,7 @@ void AMyCharacter::BeginPlay()
 		CurrentSocketOffsetZ = DefaultSocketOffsetZ;
 	}
 }
-// Called every frame
+
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -223,6 +224,7 @@ void AMyCharacter::Interact(const FInputActionValue& InputValue)
 	{
 		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
 		OverlappingWeapon->ShowPickupWidget(false);
+		OverlappingWeapon->SetOwner(this);
 		CharacterState = ECharacterState::ECS_Equipped;
 	}
 }
@@ -240,6 +242,8 @@ void AMyCharacter::Aim(const FInputActionValue& InputValue)
 
 void AMyCharacter::Fire(const FInputActionValue& InputValue)
 {
+	CombatComponent = FindComponentByClass<UCombatComponent>(); 
+
 	if (!bAiming) { return; }
 	const bool Fire = InputValue.Get<bool>(); 
 	if (Fire)
@@ -253,7 +257,10 @@ void AMyCharacter::Fire(const FInputActionValue& InputValue)
 				return;
 			}
 			PlayFireMontage();
-			OverlappingWeapon->Fire(); 
+			if (CombatComponent)
+			{
+				OverlappingWeapon->Fire(CombatComponent->HitTarget);
+			}
 		}
 	}
 	else { bFiring = false; }

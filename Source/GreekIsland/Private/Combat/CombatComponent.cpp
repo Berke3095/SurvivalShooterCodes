@@ -16,7 +16,6 @@ UCombatComponent::UCombatComponent()
 }
 
 
-// Called when the game starts
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -61,9 +60,12 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 		if (!TraceHitResult.bBlockingHit)
 		{
 			TraceHitResult.ImpactPoint = TraceEnd;
+			HitTarget = TraceEnd; //Hit target location definition for fire function
 		}
 		else
 		{
+			HitTarget = TraceHitResult.ImpactPoint; 
+			//Drawing sphere at the hitpoint
 			DrawDebugSphere(
 				GetWorld(),
 				TraceHitResult.ImpactPoint,
@@ -75,8 +77,6 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 	}
 }
 
-
-// Called every frame
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
