@@ -18,11 +18,32 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 private:
 
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CollisionBox;
 
+	UPROPERTY(VisibleAnywhere)
+	class UProjectileMovementComponent* ProjectileMovementComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* ImpactParticles;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* ImpactSound;
+	
+	UPROPERTY(EditAnywhere);
+	class UDecalComponent* DecalComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UMaterialInterface* BulletHoleDecalMaterial;
+
+	UFUNCTION()
+	void SpawnBulletHoleDecal(const FHitResult& Hit);
+	
 public:	
 	virtual void Tick(float DeltaTime) override;
 

@@ -102,7 +102,6 @@ void AWeapon::Fire(const FVector& HitTarget)
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Spawning projectile"));
 				//Spawn the bullet
 				World->SpawnActor<AProjectile>(
 					ProjectileClass,

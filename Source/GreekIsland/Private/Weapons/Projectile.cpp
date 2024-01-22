@@ -3,6 +3,10 @@
 
 #include "Weapons/Projectile.h"
 #include "Components/BoxComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+#include "Components/DecalComponent.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -18,12 +22,59 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+
+	//Bullet speed
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
+	ProjectileMovementComponent->bRotationFollowsVelocity = true;
+	
+	//Bullet decal
+	DecalComponent = CreateDefaultSubobject<UDecalComponent>(TEXT("BulletHoleDecal"));
+	DecalComponent->SetupAttachment(RootComponent); 
+	DecalComponent->DecalSize = FVector(5.0f, 5.0f, 5.0f);   
+	if (DecalComponent)
+	{
+		DecalComponent->SetDecalMaterial(BulletHoleDecalMaterial); 
+	}
+	
 }
 
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CollisionBox->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 	
+}
+
+void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (ImpactParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, GetActorTransform());
+	}
+	if (ImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation()); 
+	}
+	
+	if (BulletHoleDecalMaterial)
+	{
+		SpawnBulletHoleDecal(Hit);
+	}
+	
+	
+}
+
+void AProjectile::SpawnBulletHoleDecal(const FHitResult& Hit)
+{
+	if (BulletHoleDecalMaterial)
+	{
+		FVector DecalSize = FVector(5.0f, 5.0f, 5.0f); 
+		FRotator DecalRotation = Hit.ImpactNormal.Rotation(); 
+
+		// Spawn the bullet hole decal at the hit location
+		UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalMaterial, DecalSize, Hit.ImpactPoint, DecalRotation, 5.0f); 
+	}
 }
 
 void AProjectile::Tick(float DeltaTime)
