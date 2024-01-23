@@ -42,6 +42,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AProjectile> ProjectileClass;
 
+	UPROPERTY(EditAnywhere) 
+	TSubclassOf<class ABulletShell> BulletShellClass;  
+
 public:	
 
 	//Weapon equip function

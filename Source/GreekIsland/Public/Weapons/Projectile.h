@@ -26,15 +26,18 @@ private:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CollisionBox;
 
+	//Bullet pace
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* ProjectileMovementComponent;
 
+	//particles and sound of impact
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* ImpactParticles;
 
 	UPROPERTY(EditAnywhere)
 	class USoundCue* ImpactSound;
 	
+	//Bullet hole decal
 	UPROPERTY(EditAnywhere);
 	class UDecalComponent* DecalComponent;
 

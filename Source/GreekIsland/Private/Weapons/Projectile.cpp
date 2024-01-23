@@ -30,12 +30,11 @@ AProjectile::AProjectile()
 	//Bullet decal
 	DecalComponent = CreateDefaultSubobject<UDecalComponent>(TEXT("BulletHoleDecal"));
 	DecalComponent->SetupAttachment(RootComponent); 
-	DecalComponent->DecalSize = FVector(5.0f, 5.0f, 5.0f);   
+	DecalComponent->DecalSize = FVector(5.0f, 5.0f, 5.0f); 
 	if (DecalComponent)
 	{
 		DecalComponent->SetDecalMaterial(BulletHoleDecalMaterial); 
 	}
-	
 }
 
 void AProjectile::BeginPlay()

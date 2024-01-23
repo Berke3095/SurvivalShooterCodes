@@ -9,6 +9,7 @@
 #include "Animation/AnimationAsset.h"
 #include "Engine/SkeletalMeshSocket.h" 
 #include "Weapons/Projectile.h"
+#include "Weapons/BulletShell.h" 
 
 // Sets default values
 AWeapon::AWeapon()
@@ -86,6 +87,26 @@ void AWeapon::Fire(const FVector& HitTarget)
 	{
 		WeaponMesh->PlayAnimation(FireAnimation, false);
 	}
+	if (BulletShellClass)
+	{
+		const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(FName("AmmoEject"));
+		if (BulletShellClass)
+		{
+			FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);  
+
+			UWorld* World = GetWorld(); 
+			if (World)
+			{
+				//Spawn the bullet
+				World->SpawnActor<ABulletShell>(  
+					BulletShellClass, 
+					SocketTransform.GetLocation(), 
+					SocketTransform.GetRotation().Rotator() 
+				);
+			}
+		}
+	}
+	
 
 	//Getting the location of weapon muzzle
 	const USkeletalMeshSocket* MuzzleFlashSocket = WeaponMesh->GetSocketByName(FName("MuzzleFlash"));
