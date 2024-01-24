@@ -61,7 +61,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 		SpawnBulletHoleDecal(Hit);
 	}
 	
-	
+	Destroy();
 }
 
 void AProjectile::SpawnBulletHoleDecal(const FHitResult& Hit)

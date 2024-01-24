@@ -25,6 +25,18 @@ private:
     // Function to draw the crosshair
     void DrawCrosshair();
 
+    //Dynamic crosshair
+    void InterpCrosshair();
+
     float CrosshairSize;
     float CrosshairThickness;
+    float DefaultDistanceToCenter = 15.f;
+    float DistanceToCenter;
+    float MoveDistanceToCenter;
+
+    float GroundSpeed;
+
+    class AMyCharacter* MyCharacter;
+
+    class UCharacterMovementComponent* MyCharacterMovement;
 };

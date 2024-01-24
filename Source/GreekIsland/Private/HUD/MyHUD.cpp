@@ -3,35 +3,78 @@
 
 #include "HUD/MyHUD.h"
 #include "Engine/Canvas.h"
+#include "Characters/MyCharacter.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AMyHUD::AMyHUD() 
 {
-	CrosshairSize = 10.0f;
+	CrosshairSize = 20.0f;
 	CrosshairThickness = 2.0f;
+    DistanceToCenter = DefaultDistanceToCenter;
+    MoveDistanceToCenter = 60.f;
 }
 
 void AMyHUD::DrawHUD()
 {
+    Super::DrawHUD(); 
+    
 	DrawCrosshair();
+    InterpCrosshair();
 }
 
 void AMyHUD::DrawCrosshair()
-{
-    // Get the screen dimensions
+{ 
+    //Return if not aiming
+    if (!MyCharacter || MyCharacter->GetAimState() == false) { return; }
+  
+    // Get the screen size
     FVector2D ScreenDimensions = FVector2D(Canvas->SizeX, Canvas->SizeY);
 
-    // Calculate the center of the screen
+    // Center
     FVector2D Center = FVector2D(ScreenDimensions.X / 2, ScreenDimensions.Y / 2);
 
-    // Draw horizontal line
-    DrawLine(Center.X - CrosshairSize, Center.Y, Center.X + CrosshairSize, Center.Y, FLinearColor::White, CrosshairThickness);
+    // Horizontal line 
+    DrawLine(Center.X + DistanceToCenter, Center.Y, Center.X + CrosshairSize + DistanceToCenter, Center.Y, FLinearColor::White, CrosshairThickness); //Right
+    DrawLine(Center.X - DistanceToCenter, Center.Y, Center.X - CrosshairSize - DistanceToCenter, Center.Y, FLinearColor::White, CrosshairThickness); //Left
 
-    // Draw vertical line
-    DrawLine(Center.X, Center.Y - CrosshairSize, Center.X, Center.Y + CrosshairSize, FLinearColor::White, CrosshairThickness);
 
-    // Draw a dot in the center
-    DrawRect(FLinearColor::White, Center.X - CrosshairThickness / 2, Center.Y - CrosshairThickness / 2, CrosshairThickness, CrosshairThickness);
+    // Vertical line
+    DrawLine(Center.X, Center.Y - DistanceToCenter, Center.X, Center.Y - CrosshairSize - DistanceToCenter, FLinearColor::White, CrosshairThickness); //Top
+    DrawLine(Center.X, Center.Y + DistanceToCenter, Center.X, Center.Y + CrosshairSize + DistanceToCenter, FLinearColor::White, CrosshairThickness); //Bottom
+
+    // Dot in center
+    // DrawRect(FLinearColor::White, Center.X - CrosshairThickness / 2, Center.Y - CrosshairThickness / 2, CrosshairThickness, CrosshairThickness);
 }
+
+void AMyHUD::InterpCrosshair()
+{
+    // Initialize MyCharacter
+    if (APlayerController* PlayerController = GetOwningPlayerController())
+    {
+        MyCharacter = Cast<AMyCharacter>(PlayerController->GetPawn());
+    }
+
+    if (MyCharacter)
+    {
+        MyCharacterMovement = MyCharacter->GetCharacterMovement();
+        GroundSpeed = UKismetMathLibrary::VSizeXY(MyCharacterMovement->Velocity);
+    }
+
+    if (GroundSpeed == 150.0)
+    {
+        DistanceToCenter = FMath::FInterpTo(DistanceToCenter, MoveDistanceToCenter, GetWorld()->GetDeltaSeconds(), 5.0f);
+    }
+    else
+    {
+        DistanceToCenter = FMath::FInterpTo(DistanceToCenter, DefaultDistanceToCenter, GetWorld()->GetDeltaSeconds(), 5.0f);
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("DistanceToCenter: %f, Speed: %f"), DistanceToCenter, GroundSpeed);
+    
+}
+
+
 
 
 

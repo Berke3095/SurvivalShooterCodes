@@ -45,7 +45,6 @@ void ABulletShell::DestroyShell()
 
 void ABulletShell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Bullet hit!"));
 	if (!bHasPlayedSound && ShellSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ShellSound, GetActorLocation());

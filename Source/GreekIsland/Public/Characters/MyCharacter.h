@@ -143,6 +143,9 @@ public:
 
 	FORCEINLINE bool GetFireState() const { return bFiring; }
 
+	UFUNCTION()
+	float GetMaxWalkSpeed() const;
+
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input

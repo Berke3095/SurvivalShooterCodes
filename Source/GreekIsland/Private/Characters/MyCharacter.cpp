@@ -74,6 +74,11 @@ void AMyCharacter::BeginPlay()
 	}
 }
 
+float AMyCharacter::GetMaxWalkSpeed() const
+{
+	return GetCharacterMovement()->MaxWalkSpeed;
+}
+
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -222,10 +227,10 @@ void AMyCharacter::Interact(const FInputActionValue& InputValue)
 	const bool Interact = InputValue.Get<bool>();
 	if (OverlappingWeapon && Interact)
 	{
-		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
-		OverlappingWeapon->ShowPickupWidget(false);
-		OverlappingWeapon->SetOwner(this);
-		CharacterState = ECharacterState::ECS_Equipped;
+		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket")); 
+		OverlappingWeapon->ShowPickupWidget(false); 
+		OverlappingWeapon->SetOwner(this); 
+		CharacterState = ECharacterState::ECS_Equipped; 
 	}
 }
 
