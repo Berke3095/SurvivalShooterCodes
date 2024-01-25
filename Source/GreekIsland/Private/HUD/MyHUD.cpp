@@ -63,14 +63,14 @@ void AMyHUD::InterpCrosshair()
 
     if (GroundSpeed == 150.0)
     {
-        DistanceToCenter = FMath::FInterpTo(DistanceToCenter, MoveDistanceToCenter, GetWorld()->GetDeltaSeconds(), 5.0f);
+        DistanceToCenter = FMath::FInterpTo(DistanceToCenter, MoveDistanceToCenter, GetWorld()->GetDeltaSeconds(), 20.0f);
     }
     else
     {
-        DistanceToCenter = FMath::FInterpTo(DistanceToCenter, DefaultDistanceToCenter, GetWorld()->GetDeltaSeconds(), 5.0f);
+        DistanceToCenter = FMath::FInterpTo(DistanceToCenter, DefaultDistanceToCenter, GetWorld()->GetDeltaSeconds(), 10.0f);
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("DistanceToCenter: %f, Speed: %f"), DistanceToCenter, GroundSpeed);
+    UE_LOG(LogTemp, Warning, TEXT("DistanceToCenter: %f"), DistanceToCenter);
     
 }
 

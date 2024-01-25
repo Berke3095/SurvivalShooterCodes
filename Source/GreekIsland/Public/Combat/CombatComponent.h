@@ -23,7 +23,21 @@ protected:
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Debug")
+	bool bDrawDebugTrace;
+
+	//Trace direction
+	FVector CrosshairWorldDirection;
+
 	FVector HitTarget;
+
+	class AMyHUD* MyHud;
+
+	class AMyCharacter* MyCharacter;
+
+	float BulletSpread;
+	float RandomPitch;
+	float RandomYaw;
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

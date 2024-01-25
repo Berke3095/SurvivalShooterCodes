@@ -30,13 +30,16 @@ private:
 
     float CrosshairSize;
     float CrosshairThickness;
-    float DefaultDistanceToCenter = 15.f;
-    float DistanceToCenter;
-    float MoveDistanceToCenter;
-
+    
     float GroundSpeed;
 
     class AMyCharacter* MyCharacter;
 
     class UCharacterMovementComponent* MyCharacterMovement;
+
+public:
+    float DistanceToCenter;
+    float DefaultDistanceToCenter = 15.f;
+    float MoveDistanceToCenter;
+    
 };
