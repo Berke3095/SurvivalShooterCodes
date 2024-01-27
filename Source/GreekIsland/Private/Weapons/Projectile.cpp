@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Components/DecalComponent.h"
+#include "Enemy/Enemy.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -22,6 +23,7 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
 
 	//Bullet speed
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
@@ -59,6 +61,12 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 	if (BulletHoleDecalMaterial)
 	{
 		SpawnBulletHoleDecal(Hit);
+	}
+
+	Enemy = Cast<AEnemy>(OtherActor);
+	if (Enemy)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Enemy hit!"));
 	}
 	
 	Destroy();

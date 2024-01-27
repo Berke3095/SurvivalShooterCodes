@@ -71,8 +71,14 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 		//Setting random world directions for bullet spread 
 		CrosshairWorldDirection = FQuat(CrosshairWorldDirection.Rotation() + FRotator(RandomPitch, RandomYaw, 0.0f)).Vector(); 
 		//Trace line
-		FVector TraceStart = CrosshairWorldPosition;
-		FVector TraceEnd = TraceStart + CrosshairWorldDirection * TRACE_LENGTH; 
+		TraceStart = CrosshairWorldPosition;
+		if (MyCharacter)
+		{
+			float DistanceToCharacter = (MyCharacter->GetActorLocation() - TraceStart).Size();
+			TraceStart += CrosshairWorldDirection * (DistanceToCharacter + 50.f);
+		}
+
+		TraceEnd = TraceStart + CrosshairWorldDirection * TRACE_LENGTH; 
 
 		GetWorld()->LineTraceSingleByChannel(
 			TraceHitResult,

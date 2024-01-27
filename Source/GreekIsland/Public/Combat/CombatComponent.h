@@ -40,6 +40,10 @@ protected:
 	float RandomYaw;
 
 public:	
+
+	FVector TraceStart;
+	FVector TraceEnd; 
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 		

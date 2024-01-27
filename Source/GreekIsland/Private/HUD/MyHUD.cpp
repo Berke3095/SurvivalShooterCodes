@@ -69,8 +69,6 @@ void AMyHUD::InterpCrosshair()
     {
         DistanceToCenter = FMath::FInterpTo(DistanceToCenter, DefaultDistanceToCenter, GetWorld()->GetDeltaSeconds(), 10.0f);
     }
-
-    UE_LOG(LogTemp, Warning, TEXT("DistanceToCenter: %f"), DistanceToCenter);
     
 }
 

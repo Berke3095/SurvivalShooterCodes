@@ -10,6 +10,7 @@
 #include "Engine/SkeletalMeshSocket.h" 
 #include "Weapons/Projectile.h"
 #include "Weapons/BulletShell.h" 
+#include "Combat/CombatComponent.h"
 
 // Sets default values
 AWeapon::AWeapon()
@@ -108,17 +109,16 @@ void AWeapon::Fire(const FVector& HitTarget)
 	}
 	
 
-	//Getting the location of weapon muzzle
-	const USkeletalMeshSocket* MuzzleFlashSocket = WeaponMesh->GetSocketByName(FName("MuzzleFlash"));
-	if (MuzzleFlashSocket)
+	//Getting the location and rotation between trace end and start to spawn bullet at screen to the hitpoint
+	CombatComponent = GetOwner()->FindComponentByClass<UCombatComponent>();
+	if (CombatComponent)
 	{
-		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(WeaponMesh);
-		FVector ToTarget = HitTarget - SocketTransform.GetLocation(); //Vector from muzzle to hit location
+		FVector ToTarget = CombatComponent->TraceEnd - CombatComponent->TraceStart;
 		FRotator TargetRotation = ToTarget.Rotation(); //Vector direction
 		if (ProjectileClass && InstigatorPawn)
 		{
 			FActorSpawnParameters SpawnParams;
-			SpawnParams.Owner = GetOwner(); //Player is the owner
+			SpawnParams.Owner = GetOwner(); //Player is the owner 
 			SpawnParams.Instigator = InstigatorPawn;
 			UWorld* World = GetWorld();
 			if (World)
@@ -126,7 +126,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 				//Spawn the bullet
 				World->SpawnActor<AProjectile>(
 					ProjectileClass,
-					SocketTransform.GetLocation(),
+					CombatComponent->TraceStart,
 					TargetRotation,
 					SpawnParams
 				);

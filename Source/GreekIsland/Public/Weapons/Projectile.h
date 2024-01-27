@@ -46,6 +46,8 @@ private:
 
 	UFUNCTION()
 	void SpawnBulletHoleDecal(const FHitResult& Hit);
+
+	class AEnemy* Enemy;
 	
 public:	
 	virtual void Tick(float DeltaTime) override;

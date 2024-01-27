@@ -45,6 +45,8 @@ protected:
 	UPROPERTY(EditAnywhere) 
 	TSubclassOf<class ABulletShell> BulletShellClass;  
 
+	class UCombatComponent* CombatComponent;
+
 public:	
 
 	//Weapon equip function
