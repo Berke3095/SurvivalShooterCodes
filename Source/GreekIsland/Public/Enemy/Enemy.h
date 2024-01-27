@@ -19,7 +19,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+private:
+	bool bIsRagdoll;
+
 public:	
+
+	float MaxHealth;
+	float CurrentHealth;
+
+	void ActivateRagdoll(FVector ImpulseDirection);
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

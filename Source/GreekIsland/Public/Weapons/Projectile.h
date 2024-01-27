@@ -31,25 +31,31 @@ private:
 	class UProjectileMovementComponent* ProjectileMovementComponent;
 
 	//particles and sound of impact
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Effects")
 	class UParticleSystem* ImpactParticles;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Effects")
 	class USoundCue* ImpactSound;
 	
 	//Bullet hole decal
-	UPROPERTY(EditAnywhere);
+	UPROPERTY(EditAnywhere, Category = "Decal");
 	class UDecalComponent* DecalComponent;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Decal")
 	class UMaterialInterface* BulletHoleDecalMaterial;
 
 	UFUNCTION()
-	void SpawnBulletHoleDecal(const FHitResult& Hit);
+	void SpawnBulletHoleDecal(const FHitResult& Hit); 
 
-	class AEnemy* Enemy;
-	
+	class AEnemy* Enemy;  
+
 public:	
+
+	void DealDamage(float DamageValue, FVector ImpulseDirection);
+
+	UPROPERTY(EditAnywhere, Category = "Combat Stats")
+	float Damage = 10;
+
 	virtual void Tick(float DeltaTime) override;
 
 };

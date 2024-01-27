@@ -66,7 +66,12 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 	Enemy = Cast<AEnemy>(OtherActor);
 	if (Enemy)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Enemy hit!"));
+		FVector ImpulseDirection = Hit.ImpactPoint - GetActorLocation();
+		ImpulseDirection.Normalize();
+
+		DealDamage(Damage, ImpulseDirection);
+
+		UE_LOG(LogTemp, Warning, TEXT("EnemyCurrentHealth: %f"), Enemy->CurrentHealth);
 	}
 	
 	Destroy();
@@ -81,6 +86,19 @@ void AProjectile::SpawnBulletHoleDecal(const FHitResult& Hit)
 
 		// Spawn the bullet hole decal at the hit location
 		UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalMaterial, DecalSize, Hit.ImpactPoint, DecalRotation, 5.0f); 
+	}
+}
+
+void AProjectile::DealDamage(float DamageValue, FVector ImpulseDirection)
+{
+	if (Enemy)
+	{
+		Enemy->CurrentHealth -= DamageValue;
+
+		if (Enemy->CurrentHealth <= 0)
+		{
+			Enemy->ActivateRagdoll(ImpulseDirection);
+		}
 	}
 }
 
