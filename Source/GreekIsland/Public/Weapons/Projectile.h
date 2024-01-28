@@ -37,6 +37,16 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Effects")
 	class UParticleSystem* ZombieHitParticles;
 
+	//Bullet hole decal
+	UPROPERTY(EditAnywhere, Category = "Decal");
+	class UDecalComponent* BloodDecalComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Decal")
+	class UMaterialInterface* BloodHoleDecalMaterial;
+
+	UFUNCTION()
+	void SpawnBloodHoleDecal(const FHitResult& Hit);
+
 	UPROPERTY(EditAnywhere, Category = "Effects")
 	class USoundCue* StoneHitSound;
 
@@ -45,7 +55,7 @@ private:
 	
 	//Bullet hole decal
 	UPROPERTY(EditAnywhere, Category = "Decal");
-	class UDecalComponent* DecalComponent;
+	class UDecalComponent* BulletDecalComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Decal")
 	class UMaterialInterface* BulletHoleDecalMaterial;

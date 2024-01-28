@@ -31,12 +31,21 @@ AProjectile::AProjectile()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	
 	//Bullet decal
-	DecalComponent = CreateDefaultSubobject<UDecalComponent>(TEXT("BulletHoleDecal"));
-	DecalComponent->SetupAttachment(RootComponent); 
-	DecalComponent->DecalSize = FVector(5.0f, 5.0f, 5.0f); 
-	if (DecalComponent)
+	BulletDecalComponent = CreateDefaultSubobject<UDecalComponent>(TEXT("BulletHoleDecal"));
+	BulletDecalComponent->SetupAttachment(RootComponent); 
+	BulletDecalComponent->DecalSize = FVector(5.0f, 5.0f, 5.0f); 
+	if (BulletDecalComponent)
 	{
-		DecalComponent->SetDecalMaterial(BulletHoleDecalMaterial); 
+		BulletDecalComponent->SetDecalMaterial(BulletHoleDecalMaterial); 
+	}
+
+	//Blood decal
+	BloodDecalComponent = CreateDefaultSubobject<UDecalComponent>(TEXT("BloodHoleDecal"));
+	BloodDecalComponent->SetupAttachment(RootComponent);
+	BloodDecalComponent->DecalSize = FVector(5.0f, 5.0f, 5.0f);
+	if (BloodDecalComponent)
+	{
+		BloodDecalComponent->SetDecalMaterial(BloodHoleDecalMaterial); 
 	}
 }
 
@@ -45,7 +54,6 @@ void AProjectile::BeginPlay()
 	Super::BeginPlay();
 
 	CollisionBox->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
-	
 }
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -69,6 +77,11 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, ZombieHitSound, GetActorLocation());
 		}
+
+		if (BloodHoleDecalMaterial)
+		{
+			SpawnBloodHoleDecal(Hit);
+		}
 	}
 	else
 	{
@@ -91,6 +104,18 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 	Destroy();
 }
 
+void AProjectile::SpawnBloodHoleDecal(const FHitResult& Hit)
+{
+	if (BloodHoleDecalMaterial)
+	{
+		FVector DecalSize = FVector(5.0f, 5.0f, 5.0f);
+		FRotator DecalRotation = Hit.ImpactNormal.Rotation();
+
+		// Spawn the bullet hole decal at the hit location
+		UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BloodHoleDecalMaterial, DecalSize, Hit.ImpactPoint, DecalRotation, 60.0f);
+	}
+}
+
 void AProjectile::SpawnBulletHoleDecal(const FHitResult& Hit)
 {
 	if (BulletHoleDecalMaterial)
@@ -99,7 +124,7 @@ void AProjectile::SpawnBulletHoleDecal(const FHitResult& Hit)
 		FRotator DecalRotation = Hit.ImpactNormal.Rotation(); 
 
 		// Spawn the bullet hole decal at the hit location
-		UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalMaterial, DecalSize, Hit.ImpactPoint, DecalRotation, 5.0f); 
+		UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalMaterial, DecalSize, Hit.ImpactPoint, DecalRotation, 30.0f); 
 	}
 }
 
