@@ -24,6 +24,7 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
+	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
 
 	//Bullet speed
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
@@ -49,20 +50,6 @@ void AProjectile::BeginPlay()
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (ImpactParticles)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, GetActorTransform());
-	}
-	if (ImpactSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation()); 
-	}
-	
-	if (BulletHoleDecalMaterial)
-	{
-		SpawnBulletHoleDecal(Hit);
-	}
-
 	Enemy = Cast<AEnemy>(OtherActor);
 	if (Enemy)
 	{
@@ -72,6 +59,33 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 		DealDamage(Damage, ImpulseDirection);
 
 		UE_LOG(LogTemp, Warning, TEXT("EnemyCurrentHealth: %f"), Enemy->CurrentHealth);
+
+		if (ZombieHitParticles)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ZombieHitParticles, GetActorTransform());
+		}
+
+		if (ZombieHitSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, ZombieHitSound, GetActorLocation());
+		}
+	}
+	else
+	{
+		if (StoneHitParticles)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), StoneHitParticles, GetActorTransform());
+		}
+
+		if (StoneHitSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, StoneHitSound, GetActorLocation());
+		}
+
+		if (BulletHoleDecalMaterial)
+		{
+			SpawnBulletHoleDecal(Hit);
+		}
 	}
 	
 	Destroy();

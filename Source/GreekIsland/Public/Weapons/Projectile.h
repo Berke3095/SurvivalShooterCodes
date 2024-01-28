@@ -32,10 +32,16 @@ private:
 
 	//particles and sound of impact
 	UPROPERTY(EditAnywhere, Category = "Effects")
-	class UParticleSystem* ImpactParticles;
+	class UParticleSystem* StoneHitParticles;
 
 	UPROPERTY(EditAnywhere, Category = "Effects")
-	class USoundCue* ImpactSound;
+	class UParticleSystem* ZombieHitParticles;
+
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	class USoundCue* StoneHitSound;
+
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	class USoundCue* ZombieHitSound;
 	
 	//Bullet hole decal
 	UPROPERTY(EditAnywhere, Category = "Decal");

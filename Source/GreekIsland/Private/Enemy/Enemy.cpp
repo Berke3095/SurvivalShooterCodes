@@ -4,8 +4,6 @@
 #include "Enemy/Enemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-
-
 // Sets default values
 AEnemy::AEnemy()
 {
