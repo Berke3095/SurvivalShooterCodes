@@ -22,10 +22,6 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 {
 	Super::NativeUpdateAnimation(DeltaTime);
 
-	if (Enemy)
-	{
-		bEnemyIsHit = Enemy->bIsHit;
-	}
 	if (EnemyMovement)
 	{
 		EnemySpeed = UKismetMathLibrary::VSizeXY(EnemyMovement->Velocity);

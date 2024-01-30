@@ -21,19 +21,17 @@ AEnemy::AEnemy()
 	}
 	else{ GetCharacterMovement()->MaxWalkSpeed = 75.f; }
 
-	bIsHit = false;
-
 	PhysicalAnimation = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent"));
 
 	//Get bone name
-	Spine2 = FName(TEXT("Spine2")); 
+	Spine2 = FName(TEXT("Spine")); 
 
 	//Define physical animation data
 	PhysicalAnimationData.bIsLocalSimulation = false;
-	PhysicalAnimationData.OrientationStrength = 500.f;
-	PhysicalAnimationData.AngularVelocityStrength = 100.f;
-	PhysicalAnimationData.PositionStrength = 500.f;
-	PhysicalAnimationData.VelocityStrength = 100.f;
+	PhysicalAnimationData.OrientationStrength = 100.f; 
+	PhysicalAnimationData.AngularVelocityStrength = 100.f; 
+	PhysicalAnimationData.PositionStrength = 500.f; 
+	PhysicalAnimationData.VelocityStrength = 100.f; 
 }
 
 // Called when the game starts or when spawned
@@ -67,7 +65,7 @@ void AEnemy::ActivateRagdoll(FVector ImpulseDirection, FName HitBone)
 	GetMesh()->SetSimulatePhysics(true);
 
 	// Apply impulse only to the specified bone
-	GetMesh()->AddImpulse(ImpulseDirection * 2000.f, HitBone, true);
+	GetMesh()->AddImpulse(ImpulseDirection * 1000.f, HitBone, true);
 
 	bIsRagdoll = true;
 
@@ -81,7 +79,7 @@ void AEnemy::ActivateRagdoll(FVector ImpulseDirection, FName HitBone)
 
 void AEnemy::HitReaction(FVector ImpulseDirection, FName HitBone)
 {
-	GetMesh()->AddImpulse(ImpulseDirection * 2000.f, HitBone, true);
+	GetMesh()->AddImpulse(ImpulseDirection * 5000.f, HitBone, true);
 }
 
 

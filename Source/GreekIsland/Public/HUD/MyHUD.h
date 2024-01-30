@@ -22,8 +22,9 @@ public:
     virtual void DrawHUD() override;
 
 private:
+
     // Function to draw the crosshair
-    void DrawCrosshair();
+    void DrawCrosshair(); 
 
     //Dynamic crosshair
     void InterpCrosshair();
@@ -37,9 +38,18 @@ private:
 
     class UCharacterMovementComponent* MyCharacterMovement;
 
+    TArray<AActor*> FoundActors; 
+
 public:
     float DistanceToCenter;
     float DefaultDistanceToCenter = 15.f;
     float MoveDistanceToCenter;
+    float HitIndicatorDistance;
+    float HitIndicatorSize;
+    float HitIndicatorThickness;
+
+    //Hit indicator
+    void DrawHit();
+
     
 };

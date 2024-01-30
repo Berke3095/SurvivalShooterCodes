@@ -63,7 +63,9 @@ private:
 	UFUNCTION()
 	void SpawnBulletHoleDecal(const FHitResult& Hit); 
 
-	class AEnemy* Enemy;  
+	class AEnemy* Enemy; 
+
+	void DestroyProjectile(); 
 
 public:	
 
@@ -72,6 +74,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Combat Stats")
 	float Damage = 10;
 
+	bool bEnemyHit = false;
+	
 	virtual void Tick(float DeltaTime) override;
 
 };

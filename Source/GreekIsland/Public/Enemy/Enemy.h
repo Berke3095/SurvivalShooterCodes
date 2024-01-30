@@ -38,7 +38,6 @@ public:
 	float CurrentHealth;
 	
 	bool bChasingCharacter;
-	bool bIsHit;
 
 	FName HitBoneName;
 
