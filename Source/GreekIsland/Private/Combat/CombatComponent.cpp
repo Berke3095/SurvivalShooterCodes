@@ -15,7 +15,7 @@ UCombatComponent::UCombatComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	bDrawDebugTrace = false;
+	bDrawDebugTrace = true;
 }
 
 
@@ -75,7 +75,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 		if (MyCharacter)
 		{
 			float DistanceToCharacter = (MyCharacter->GetActorLocation() - TraceStart).Size();
-			TraceStart += CrosshairWorldDirection * (DistanceToCharacter + 50.f);
+			TraceStart += CrosshairWorldDirection * (DistanceToCharacter + 20.f);
 		}
 
 		TraceEnd = TraceStart + CrosshairWorldDirection * TRACE_LENGTH; 
@@ -100,7 +100,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 				DrawDebugSphere(
 					GetWorld(),
 					TraceHitResult.ImpactPoint,
-					12.f,
+					6.f,
 					12,
 					FColor::Red
 				);

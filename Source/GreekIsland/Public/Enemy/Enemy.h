@@ -16,18 +16,36 @@ public:
 	AEnemy();
 
 protected:
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-private:
+	class UEnemyAnimInstance* EnemyAnimInstance;
+
+	class UPhysicalAnimationComponent* PhysicalAnimation;
+
 	bool bIsRagdoll;
+
+private:
+
+	FName Spine2;
+
+	FPhysicalAnimationData PhysicalAnimationData;
 
 public:	
 
 	float MaxHealth;
 	float CurrentHealth;
+	
+	bool bChasingCharacter;
+	bool bIsHit;
 
-	void ActivateRagdoll(FVector ImpulseDirection);
+	FName HitBoneName;
+
+	void ActivateRagdoll(FVector ImpulseDirection, FName HitBone);
+
+	void HitReaction(FVector ImpulseDirection, FName HitBone);
+	
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -61,12 +61,13 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 	Enemy = Cast<AEnemy>(OtherActor);
 	if (Enemy)
 	{
+		Enemy->bIsHit = true;
 		FVector ImpulseDirection = Hit.ImpactPoint - GetActorLocation();
 		ImpulseDirection.Normalize();
 
-		DealDamage(Damage, ImpulseDirection);
+		Enemy->HitBoneName = Hit.BoneName;
 
-		UE_LOG(LogTemp, Warning, TEXT("EnemyCurrentHealth: %f"), Enemy->CurrentHealth);
+		DealDamage(Damage, ImpulseDirection);
 
 		if (ZombieHitParticles)
 		{
@@ -81,9 +82,10 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 		if (BloodHoleDecalMaterial)
 		{
 			SpawnBloodHoleDecal(Hit);
-		}
+		} 
+
 	}
-	else
+	else 
 	{
 		if (StoneHitParticles)
 		{
@@ -100,7 +102,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 			SpawnBulletHoleDecal(Hit);
 		}
 	}
-	
+
 	Destroy();
 }
 
@@ -112,7 +114,7 @@ void AProjectile::SpawnBloodHoleDecal(const FHitResult& Hit)
 		FRotator DecalRotation = Hit.ImpactNormal.Rotation();
 
 		// Spawn the bullet hole decal at the hit location
-		UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BloodHoleDecalMaterial, DecalSize, Hit.ImpactPoint, DecalRotation, 60.0f);
+		UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BloodHoleDecalMaterial, DecalSize, Hit.ImpactPoint, DecalRotation, 1.0f);
 	}
 }
 
@@ -134,9 +136,14 @@ void AProjectile::DealDamage(float DamageValue, FVector ImpulseDirection)
 	{
 		Enemy->CurrentHealth -= DamageValue;
 
+		if (Enemy->CurrentHealth > 0)
+		{
+			Enemy->HitReaction(ImpulseDirection, Enemy->HitBoneName);
+		}
+
 		if (Enemy->CurrentHealth <= 0)
 		{
-			Enemy->ActivateRagdoll(ImpulseDirection);
+			Enemy->ActivateRagdoll(ImpulseDirection, Enemy->HitBoneName); 
 		}
 	}
 }

@@ -14,4 +14,22 @@ class GREEKISLAND_API UEnemyAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 	
+protected:
+	//Animation initialization and update events
+	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaTime) override;
+
+	
+	class AEnemy* Enemy;
+
+	class UCharacterMovementComponent* EnemyMovement;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	float EnemySpeed;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	bool bIsChasing;
+	
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	bool bEnemyIsHit;
 };
