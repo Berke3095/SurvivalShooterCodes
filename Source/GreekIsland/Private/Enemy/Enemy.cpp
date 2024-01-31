@@ -65,7 +65,7 @@ void AEnemy::ActivateRagdoll(FVector ImpulseDirection, FName HitBone)
 	GetMesh()->SetSimulatePhysics(true);
 
 	// Apply impulse only to the specified bone
-	GetMesh()->AddImpulse(ImpulseDirection * 1000.f, HitBone, true);
+	GetMesh()->AddImpulse(ImpulseDirection * 2000.f, HitBone, true);
 
 	bIsRagdoll = true;
 
@@ -79,7 +79,7 @@ void AEnemy::ActivateRagdoll(FVector ImpulseDirection, FName HitBone)
 
 void AEnemy::HitReaction(FVector ImpulseDirection, FName HitBone)
 {
-	GetMesh()->AddImpulse(ImpulseDirection * 5000.f, HitBone, true);
+	GetMesh()->AddImpulse(ImpulseDirection * 4000.f, HitBone, true);
 }
 
 

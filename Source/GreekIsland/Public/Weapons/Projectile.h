@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
+class UMaterialInterface;
+
 UCLASS()
 class GREEKISLAND_API AProjectile : public AActor
 {
@@ -38,11 +40,11 @@ private:
 	class UParticleSystem* ZombieHitParticles;
 
 	//Bullet hole decal
-	UPROPERTY(EditAnywhere, Category = "Decal");
+	UPROPERTY(EditAnywhere, Category = "Decal")
 	class UDecalComponent* BloodDecalComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Decal")
-	class UMaterialInterface* BloodHoleDecalMaterial;
+	UMaterialInterface* BloodHoleDecalMaterial;
 
 	UFUNCTION()
 	void SpawnBloodHoleDecal(const FHitResult& Hit);
@@ -54,11 +56,11 @@ private:
 	class USoundCue* ZombieHitSound;
 	
 	//Bullet hole decal
-	UPROPERTY(EditAnywhere, Category = "Decal");
+	UPROPERTY(EditAnywhere, Category = "Decal")
 	class UDecalComponent* BulletDecalComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Decal")
-	class UMaterialInterface* BulletHoleDecalMaterial;
+	UMaterialInterface* BulletHoleDecalMaterial;
 
 	UFUNCTION()
 	void SpawnBulletHoleDecal(const FHitResult& Hit); 
@@ -66,6 +68,15 @@ private:
 	class AEnemy* Enemy; 
 
 	void DestroyProjectile(); 
+
+	UPROPERTY(EditAnywhere, Category = "Decal")
+	class UDecalComponent* BloodStainDecalComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Materials")
+	TArray<UMaterialInterface*> BloodStainMaterials; 
+
+	UFUNCTION()
+	void SpawnStainDecal();
 
 public:	
 
