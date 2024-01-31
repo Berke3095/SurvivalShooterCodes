@@ -10,6 +10,7 @@
 #include "Enemy/Enemy.h"
 #include "Engine/TimerHandle.h"
 #include "Components/CapsuleComponent.h"
+#include "Characters/MyCharacter.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -165,31 +166,42 @@ void AProjectile::DestroyProjectile()
 
 void AProjectile::SpawnStainDecal() 
 {
-	if (BloodStainMaterials[0])
+	if (BloodStainMaterials[0] && Enemy && GetWorld()->GetFirstPlayerController())
 	{
-		FVector EnemyBottomLocation = Enemy->GetActorLocation() - FVector(0.f, 0.f, Enemy->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+		AMyCharacter* PlayerCharacter = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()); 
 
-		float RandomXOffset = FMath::RandRange(-15.f, 15.f);
-		FVector LocalXAxis = Enemy->GetActorRotation().RotateVector(FVector::RightVector); 
-		FVector LocalYAxis = Enemy->GetActorRotation().RotateVector(FVector::ForwardVector);  
+		if (PlayerCharacter)
+		{
+			FVector PlayerLocation = PlayerCharacter->GetActorLocation() - FVector(0.f, 0.f, PlayerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()); 
+			FVector EnemyLocation = Enemy->GetActorLocation() - FVector(0.f, 0.f, Enemy->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
 
-		FVector YOffset = LocalYAxis * 50.f;
-		FVector XOffset = LocalXAxis * RandomXOffset; 
+			// Calculate the direction vector from player to enemy
+			//FVector EnemyBackDirection = (EnemyLocation - PlayerLocation).GetSafeNormal();
+			FVector EnemyFrontDirection = (PlayerLocation - EnemyLocation).GetSafeNormal();
 
-		FVector ModifiedLocation = EnemyBottomLocation + YOffset + RandomXOffset; 
+			float RandomXOffset = FMath::RandRange(-15.f, 15.f);
+			FVector LocalXAxis = Enemy->GetActorRotation().RotateVector(FVector::RightVector);
 
-		int32 RandomIndex = FMath::RandRange(0, 7);
-		// Spawn the blood stain decal at the hit location
-		UGameplayStatics::SpawnDecalAtLocation(
-			GetWorld(),
-			BloodStainMaterials[RandomIndex],
-			FVector(20.0f, 20.0f, 20.0f),
-			ModifiedLocation,
-			FRotator(90.f, 0, 0), 
-			10.0f
-		)->SetFadeScreenSize(0.f);
+			FVector XOffset = LocalXAxis * RandomXOffset;
+
+			// Spawn the blood stain decal along the direction from player to enemy
+			FVector ModifiedLocation = EnemyLocation + EnemyFrontDirection * 80.f + XOffset;
+			FRotator StainRotation = (EnemyFrontDirection.Rotation() + FRotator(90.f, 0.f, 0.f)); 
+
+			int32 RandomIndex = FMath::RandRange(0, 7);
+
+			UGameplayStatics::SpawnDecalAtLocation( 
+				GetWorld(),
+				BloodStainMaterials[RandomIndex], 
+				FVector(30.0f, 30.0f, 30.0f),
+				ModifiedLocation,
+				StainRotation,
+				10.0f
+			)->SetFadeScreenSize(0.f); 
+		}
 	}
 }
+
 
 void AProjectile::DealDamage(float DamageValue, FVector ImpulseDirection)
 {
