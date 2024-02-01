@@ -4,6 +4,7 @@
 #include "Enemy/Enemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -73,6 +74,10 @@ void AEnemy::ActivateRagdoll(FVector ImpulseDirection, FName HitBone)
 	{
 		PhysicalAnimation->ConditionalBeginDestroy(); 
 		PhysicalAnimation = nullptr; // Set to nullptr to avoid using a dangling pointer
+	}
+	if (GetCapsuleComponent())
+	{
+		GetCapsuleComponent()->DestroyComponent(); 
 	}
 }
 

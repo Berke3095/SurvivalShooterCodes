@@ -72,11 +72,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Decal")
 	class UDecalComponent* BloodStainDecalComponent;
 
-	UPROPERTY(EditAnywhere, Category = "Materials")
+	UPROPERTY(EditAnywhere, Category = "Decal")
 	TArray<UMaterialInterface*> BloodStainMaterials; 
 
 	UFUNCTION()
 	void SpawnStainDecal();
+	
 
 public:	
 
