@@ -26,4 +26,8 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	{
 		EnemySpeed = UKismetMathLibrary::VSizeXY(EnemyMovement->Velocity);
 	}
+	if (Enemy)
+	{
+		bIsAttackingAnim = Enemy->bIsAttacking;
+	}
 }

@@ -26,21 +26,28 @@ protected:
 
 	bool bIsRagdoll;
 
+	class AMyCharacter* MyCharacter;
+
 private:
 
 	FName Spine2;
 
 	FPhysicalAnimationData PhysicalAnimationData;
 
-	/*
-	UPROPERTY(EditDefaultsOnly, Category = "Enemy Montages")
-	class UAnimMontage* EnemyIdleMontage;
-	*/
-
 	void DestroyDeadEnemy(); 
 
 	UPROPERTY(EditAnywhere)
 	float RotationInterpSpeed = 2.f;
+
+	FVector Distance; 
+
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	class UAnimMontage* AttackMontage;
+
+	class UAnimInstance* AnimInstance;
+
+	void StopAttacking();
+	FTimerHandle StopAttackHandler;
 
 public:	
 
@@ -54,6 +61,12 @@ public:
 	bool bChasingCharacter = true;
 
 	FName HitBoneName;
+
+	float DistanceInFloat;
+
+	bool bIsAttacking;
+
+	float EnemyPace;
 
 	void ActivateRagdoll(FVector ImpulseDirection, FName HitBone);
 

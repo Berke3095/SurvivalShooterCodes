@@ -32,4 +32,7 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	bool bEnemyIsHit;
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+	bool bIsAttackingAnim;
 };

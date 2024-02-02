@@ -7,7 +7,10 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/TimerHandle.h"
-//#include "Animation/AnimMontage.h"
+#include "Characters/MyCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -19,6 +22,8 @@ AEnemy::AEnemy()
 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
 	
+	EnemyPace = GetCharacterMovement()->Velocity.Size();
+
 	if (bChasingCharacter)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 250.f;
@@ -36,10 +41,10 @@ AEnemy::AEnemy()
 
 		//Define physical animation data
 		PhysicalAnimationData.bIsLocalSimulation = false;
-		PhysicalAnimationData.OrientationStrength = 500.f;
+		PhysicalAnimationData.OrientationStrength = 1000.f;
 		PhysicalAnimationData.AngularVelocityStrength = 100.f;
-		PhysicalAnimationData.PositionStrength = 500.f;
-		PhysicalAnimationData.VelocityStrength = 100.f;	 	
+		PhysicalAnimationData.PositionStrength = 1000.f;
+		PhysicalAnimationData.VelocityStrength = 100.f;
 	}
 
 	PhysicalAnimation = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent"));
@@ -84,40 +89,56 @@ void AEnemy::Tick(float DeltaTime)
 		FaceRotation(NewRotation, DeltaTime);
 	}
 
-	/*
-	EnemySpeed = UKismetMathLibrary::VSizeXY(GetCharacterMovement()->Velocity);  
-
-	if (GetCharacterMovement())
+	MyCharacter = Cast<AMyCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)); 
+	if (MyCharacter)
 	{
-		if (EnemySpeed == 0)
-		{
-			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance(); 
-			if (AnimInstance && EnemyIdleMontage) 
-			{
-				if (AnimInstance->Montage_IsPlaying(EnemyIdleMontage)) { return; }
+		Distance = GetActorLocation() - MyCharacter->GetActorLocation(); 
 
-				AnimInstance->Montage_Play(EnemyIdleMontage);
-				int32 Selection = FMath::RandRange(0, 2);
+		DistanceInFloat = Distance.Size(); 
+
+		//UE_LOG(LogTemp, Warning, TEXT("Distance: %f"), DistanceInFloat); 
+	}
+
+	if (DistanceInFloat <= 200.f)
+	{
+		bIsAttacking = true; 
+
+		AnimInstance = GetMesh()->GetAnimInstance(); 
+		if (AnimInstance && AttackMontage)
+		{
+			if (!AnimInstance->Montage_IsPlaying(AttackMontage))
+			{
+				AnimInstance->Montage_Play(AttackMontage);
+				int32 Selection = FMath::RandRange(0, 1);
 				FName SectionName = FName();
+
 				switch (Selection)
 				{
 				case 0:
-					SectionName = FName("Idle");
+					SectionName = FName("Overhand");
 					break;
 				case 1:
-					SectionName = FName("Agonizing");
-					break;
-				case 2:
-					SectionName = FName("Eating");
+					SectionName = FName("Hook");
 					break;
 				default:
 					break;
 				}
-				AnimInstance->Montage_JumpToSection(SectionName, EnemyIdleMontage);
+				AnimInstance->Montage_JumpToSection(SectionName, AttackMontage); 
 			}
 		}
 	}
-	*/
+	else
+	{
+		float DelayTime = 2.0f; // Adjust the delay time as needed
+		GetWorld()->GetTimerManager().SetTimer(StopAttackHandler, this, &AEnemy::StopAttacking, DelayTime);
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("IsAttacking: %s"), bIsAttacking ? TEXT("true") : TEXT("false")); 
+}
+
+void AEnemy::StopAttacking()
+{
+	bIsAttacking = false;
 }
 
 void AEnemy::DestroyDeadEnemy()
