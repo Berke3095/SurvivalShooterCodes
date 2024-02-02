@@ -69,6 +69,11 @@ void AProjectile::BeginPlay()
 	CollisionBox->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 }
 
+void AProjectile::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Enemy = Cast<AEnemy>(OtherActor);
@@ -89,7 +94,6 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 
 			if (BloodStainMaterials[0])
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Stainmats online"));
 				SpawnStainDecal();
 			}
 		}
@@ -191,16 +195,21 @@ void AProjectile::SpawnStainDecal()
 
 			int8 RandomIndex = FMath::RandRange(0, 7); 
 
+			float SpawnTime = GetWorld()->GetTimeSeconds(); 
+			float ElapsedTime = GetWorld()->GetTimeSeconds() - SpawnTime; 
+
+			FVector StainSize = FVector(3.0f, 30.0f, 30.0f);
+
 			UDecalComponent* StainDecal = UGameplayStatics::SpawnDecalAtLocation(
 				GetWorld(),
 				BloodStainMaterials[RandomIndex],
-				FVector(3.0f, 30.0f, 30.0f),
+				StainSize, 
 				ModifiedLocation,
 				StainRotation,
 				10.0f
 			);
 
-			StainDecal->SetFadeScreenSize(0.f);
+			StainDecal->SetFadeScreenSize(0.f); 
 		}
 	}
 }
@@ -218,15 +227,12 @@ void AProjectile::DealDamage(float DamageValue, FVector ImpulseDirection)
 
 		if (Enemy->CurrentHealth <= 0)
 		{
-			Enemy->ActivateRagdoll(ImpulseDirection, Enemy->HitBoneName); 
+			Enemy->ActivateRagdoll(ImpulseDirection, Enemy->HitBoneName);
 		}
 	}
 }
 
-void AProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
+
 
 
 

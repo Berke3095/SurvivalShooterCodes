@@ -36,8 +36,10 @@ public:
 
 	float MaxHealth;
 	float CurrentHealth;
+
+	float BulletForce = 2000.f;
 	
-	bool bChasingCharacter;
+	bool bChasingCharacter = true;
 
 	FName HitBoneName;
 
@@ -45,7 +47,6 @@ public:
 
 	void HitReaction(FVector ImpulseDirection, FName HitBone);
 	
-
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

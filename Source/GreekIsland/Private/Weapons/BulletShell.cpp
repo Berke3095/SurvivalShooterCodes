@@ -50,7 +50,7 @@ void ABulletShell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
 		UGameplayStatics::PlaySoundAtLocation(this, ShellSound, GetActorLocation());
 		bHasPlayedSound = true;
 	}
-	GetWorldTimerManager().SetTimer(DestroyTimerHandle, this, &ABulletShell::DestroyShell, 3.0f, false); 
+	GetWorldTimerManager().SetTimer(DestroyTimerHandle, this, &ABulletShell::DestroyShell, 1.5f, false); 
 }
 
 // Called every frame
