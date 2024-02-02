@@ -32,10 +32,22 @@ private:
 
 	FPhysicalAnimationData PhysicalAnimationData;
 
+	/*
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Montages")
+	class UAnimMontage* EnemyIdleMontage;
+	*/
+
+	void DestroyDeadEnemy(); 
+
+	UPROPERTY(EditAnywhere)
+	float RotationInterpSpeed = 2.f;
+
 public:	
 
 	float MaxHealth;
 	float CurrentHealth;
+
+	float EnemySpeed;
 
 	float BulletForce = 2000.f;
 	

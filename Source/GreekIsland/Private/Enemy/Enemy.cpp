@@ -5,6 +5,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Engine/TimerHandle.h"
+//#include "Animation/AnimMontage.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -23,9 +26,9 @@ AEnemy::AEnemy()
 		//Define physical animation data
 		PhysicalAnimationData.bIsLocalSimulation = false;
 		PhysicalAnimationData.OrientationStrength = 2000.f;
-		PhysicalAnimationData.AngularVelocityStrength = 1000.f;
+		PhysicalAnimationData.AngularVelocityStrength = 300.f;
 		PhysicalAnimationData.PositionStrength = 2000.f;
-		PhysicalAnimationData.VelocityStrength = 1000.f;
+		PhysicalAnimationData.VelocityStrength = 300.f;
 	}
 	else
 	{
@@ -33,9 +36,9 @@ AEnemy::AEnemy()
 
 		//Define physical animation data
 		PhysicalAnimationData.bIsLocalSimulation = false;
-		PhysicalAnimationData.OrientationStrength = 1000.f;
+		PhysicalAnimationData.OrientationStrength = 500.f;
 		PhysicalAnimationData.AngularVelocityStrength = 100.f;
-		PhysicalAnimationData.PositionStrength = 1000.f;
+		PhysicalAnimationData.PositionStrength = 500.f;
 		PhysicalAnimationData.VelocityStrength = 100.f;	 	
 	}
 
@@ -44,7 +47,8 @@ AEnemy::AEnemy()
 	//Get bone name
 	Spine2 = FName(TEXT("Spine"));
 
-	
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 // Called when the game starts or when spawned
@@ -69,12 +73,62 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (GetCharacterMovement() && GetCharacterMovement()->Velocity.Size() > 0.0f) 
+	{
+		FVector VelocityDirection = GetCharacterMovement()->Velocity.GetSafeNormal(); //Move Direction
+		FRotator TargetRotation = VelocityDirection.Rotation();   
+
+		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, RotationInterpSpeed); 
+
+		FaceRotation(NewRotation, DeltaTime);
+	}
+
+	/*
+	EnemySpeed = UKismetMathLibrary::VSizeXY(GetCharacterMovement()->Velocity);  
+
+	if (GetCharacterMovement())
+	{
+		if (EnemySpeed == 0)
+		{
+			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance(); 
+			if (AnimInstance && EnemyIdleMontage) 
+			{
+				if (AnimInstance->Montage_IsPlaying(EnemyIdleMontage)) { return; }
+
+				AnimInstance->Montage_Play(EnemyIdleMontage);
+				int32 Selection = FMath::RandRange(0, 2);
+				FName SectionName = FName();
+				switch (Selection)
+				{
+				case 0:
+					SectionName = FName("Idle");
+					break;
+				case 1:
+					SectionName = FName("Agonizing");
+					break;
+				case 2:
+					SectionName = FName("Eating");
+					break;
+				default:
+					break;
+				}
+				AnimInstance->Montage_JumpToSection(SectionName, EnemyIdleMontage);
+			}
+		}
+	}
+	*/
+}
+
+void AEnemy::DestroyDeadEnemy()
+{
+	Destroy();
 }
 
 void AEnemy::ActivateRagdoll(FVector ImpulseDirection, FName HitBone)
 {
 	if (bIsRagdoll) { return; }
-
+	
 	GetCharacterMovement()->DisableMovement(); 
 
 	if (GetCapsuleComponent())
@@ -96,6 +150,9 @@ void AEnemy::ActivateRagdoll(FVector ImpulseDirection, FName HitBone)
 		PhysicalAnimation->ConditionalBeginDestroy(); 
 		PhysicalAnimation = nullptr; 
 	}
+
+	FTimerHandle DestroyHandler;
+	GetWorld()->GetTimerManager().SetTimer(DestroyHandler, this, &AEnemy::DestroyDeadEnemy, 5.f); 
 }
 
 void AEnemy::HitReaction(FVector ImpulseDirection, FName HitBone)
