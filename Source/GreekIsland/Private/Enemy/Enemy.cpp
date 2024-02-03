@@ -11,12 +11,26 @@
 #include "Kismet/GameplayStatics.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
+#include "AIController.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	RightHandComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("RightHandComponent"));
+	RightHandComponent->SetupAttachment(GetMesh(), FName(TEXT("RightHand")));
+	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightHandComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	RightHandComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Overlap);
+
+	LeftHandComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftHandComponent"));
+	LeftHandComponent->SetupAttachment(GetMesh(), FName(TEXT("LeftHand")));
+	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);  
+	LeftHandComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	LeftHandComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Overlap);
 
 	MaxHealth = 100;
 
@@ -61,6 +75,9 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	RightHandComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnRightHandOverlap); 
+	LeftHandComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnLeftHandOverlap); 
+
 	CurrentHealth = MaxHealth;
 
 	if (PhysicalAnimation)
@@ -99,6 +116,12 @@ void AEnemy::Tick(float DeltaTime)
 		//UE_LOG(LogTemp, Warning, TEXT("Distance: %f"), DistanceInFloat); 
 	}
 
+	EnemyController = Cast<AAIController>(GetController()); 
+	if (EnemyController && MyCharacter) 
+	{
+		EnemyController->MoveToActor(MyCharacter); 
+	}
+
 	if (DistanceInFloat <= 200.f)
 	{
 		bIsAttacking = true; 
@@ -123,7 +146,7 @@ void AEnemy::Tick(float DeltaTime)
 				default:
 					break;
 				}
-				AnimInstance->Montage_JumpToSection(SectionName, AttackMontage); 
+				AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);     
 			}
 		}
 	}
@@ -132,8 +155,6 @@ void AEnemy::Tick(float DeltaTime)
 		float DelayTime = 2.0f; // Adjust the delay time as needed
 		GetWorld()->GetTimerManager().SetTimer(StopAttackHandler, this, &AEnemy::StopAttacking, DelayTime);
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("IsAttacking: %s"), bIsAttacking ? TEXT("true") : TEXT("false")); 
 }
 
 void AEnemy::StopAttacking()
@@ -141,9 +162,41 @@ void AEnemy::StopAttacking()
 	bIsAttacking = false;
 }
 
+void AEnemy::EnableCollision() 
+{ 
+	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); 
+	LeftHandComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);  
+}
+
+void AEnemy::DisableCollision() 
+{
+	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
+	LeftHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
+}
+
 void AEnemy::DestroyDeadEnemy()
 {
 	Destroy();
+}
+
+void AEnemy::OnRightHandOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor && OtherActor->IsA(AMyCharacter::StaticClass()))
+	{
+		// Right hand has overlapped with MyCharacter
+		// You can add your logic here, e.g., deal damage or trigger some event
+		UE_LOG(LogTemp, Warning, TEXT("Right hand overlapped with MyCharacter"));
+	}
+}
+
+void AEnemy::OnLeftHandOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor && OtherActor->IsA(AMyCharacter::StaticClass()))
+	{
+		// Left hand has overlapped with MyCharacter
+		// You can add your logic here, e.g., deal damage or trigger some event
+		UE_LOG(LogTemp, Warning, TEXT("Left hand overlapped with MyCharacter"));
+	}
 }
 
 void AEnemy::ActivateRagdoll(FVector ImpulseDirection, FName HitBone)
@@ -179,6 +232,14 @@ void AEnemy::ActivateRagdoll(FVector ImpulseDirection, FName HitBone)
 void AEnemy::HitReaction(FVector ImpulseDirection, FName HitBone)
 {
 	GetMesh()->AddImpulse(ImpulseDirection * BulletForce, HitBone, true);
+}
+
+void AEnemy::EnemyDealDamage(float DamageValue) 
+{
+	if (MyCharacter)
+	{
+		MyCharacter->CurrentHealth -= DamageValue;
+	}
 }
 
 // Called to bind functionality to input

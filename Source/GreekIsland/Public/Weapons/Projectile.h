@@ -23,14 +23,8 @@ protected:
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-private:
-
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CollisionBox;
-
-	//Bullet pace
-	UPROPERTY(VisibleAnywhere)
-	class UProjectileMovementComponent* ProjectileMovementComponent;
 
 	//particles and sound of impact
 	UPROPERTY(EditAnywhere, Category = "Effects")
@@ -54,7 +48,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Effects")
 	class USoundCue* ZombieHitSound;
-	
+
 	//Bullet hole decal
 	UPROPERTY(EditAnywhere, Category = "Decal")
 	class UDecalComponent* BulletDecalComponent;
@@ -63,21 +57,26 @@ private:
 	UMaterialInterface* BulletHoleDecalMaterial;
 
 	UFUNCTION()
-	void SpawnBulletHoleDecal(const FHitResult& Hit); 
+	void SpawnBulletHoleDecal(const FHitResult& Hit);
 
-	class AEnemy* Enemy; 
+	class AEnemy* Enemy;
 
-	void DestroyProjectile(); 
+	void DestroyProjectile();
 
 	UPROPERTY(EditAnywhere, Category = "Decal")
 	class UDecalComponent* BloodStainDecalComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Decal")
-	TArray<UMaterialInterface*> BloodStainMaterials; 
+	TArray<UMaterialInterface*> BloodStainMaterials;
 
 	UFUNCTION()
 	void SpawnStainDecal();
-	
+
+private:
+
+	//Bullet pace
+	UPROPERTY(VisibleAnywhere)
+	class UProjectileMovementComponent* ProjectileMovementComponent;
 
 public:	
 

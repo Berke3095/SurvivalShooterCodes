@@ -20,6 +20,8 @@ AMyCharacter::AMyCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	MaxHealth = 100;
+
 	//Camera placement
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent); 
@@ -35,12 +37,13 @@ AMyCharacter::AMyCharacter()
 	//Groom placement
 	Groom = CreateDefaultSubobject<UGroomComponent>(TEXT("Hair"));
 	Groom->SetupAttachment(GetMesh());
-
 }
 
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CurrentHealth = MaxHealth;
 
 	//Get mapping context:
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))

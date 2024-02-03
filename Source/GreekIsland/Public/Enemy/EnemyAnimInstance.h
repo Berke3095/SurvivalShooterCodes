@@ -18,8 +18,8 @@ protected:
 	//Animation initialization and update events
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
-
 	
+	UPROPERTY(BlueprintReadOnly)
 	class AEnemy* Enemy;
 
 	class UCharacterMovementComponent* EnemyMovement;

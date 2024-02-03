@@ -146,6 +146,9 @@ public:
 	UFUNCTION()
 	float GetMaxWalkSpeed() const;
 
+	float MaxHealth;
+	float CurrentHealth;
+
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input

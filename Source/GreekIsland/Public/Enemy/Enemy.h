@@ -24,22 +24,37 @@ protected:
 
 	class UPhysicalAnimationComponent* PhysicalAnimation;
 
-	bool bIsRagdoll;
+	bool bIsRagdoll; 
 
+	UPROPERTY() 
 	class AMyCharacter* MyCharacter;
 
-private:
+	UPROPERTY()
+	class AAIController* EnemyController;
 
-	FName Spine2;
+	FPhysicalAnimationData PhysicalAnimationData;  
 
-	FPhysicalAnimationData PhysicalAnimationData;
-
-	void DestroyDeadEnemy(); 
+	void DestroyDeadEnemy();
 
 	UPROPERTY(EditAnywhere)
 	float RotationInterpSpeed = 2.f;
 
 	FVector Distance; 
+
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* RightHandComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* LeftHandComponent;
+
+	UFUNCTION()
+	void OnRightHandOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnLeftHandOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+private:
+
+	FName Spine2;
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	class UAnimMontage* AttackMontage;
@@ -49,12 +64,15 @@ private:
 	void StopAttacking();
 	FTimerHandle StopAttackHandler;
 
+	UFUNCTION(BlueprintCallable)
+	void EnableCollision(); 
+	UFUNCTION(BlueprintCallable)
+	void DisableCollision(); 
+
 public:	
 
 	float MaxHealth;
 	float CurrentHealth;
-
-	float EnemySpeed;
 
 	float BulletForce = 2000.f;
 	
@@ -62,15 +80,23 @@ public:
 
 	FName HitBoneName;
 
+	UPROPERTY(BlueprintReadOnly)
 	float DistanceInFloat;
 
+	UPROPERTY(BlueprintReadOnly)
 	bool bIsAttacking;
 
+	UPROPERTY(BlueprintReadOnly)
 	float EnemyPace;
 
 	void ActivateRagdoll(FVector ImpulseDirection, FName HitBone);
 
 	void HitReaction(FVector ImpulseDirection, FName HitBone);
+
+	void EnemyDealDamage(float DamageValue);
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float EnemyDamage = 20;
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
