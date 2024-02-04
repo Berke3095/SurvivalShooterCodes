@@ -89,6 +89,8 @@ void AMyCharacter::Tick(float DeltaTime)
 	InterpFOV(DeltaTime);
 
 	InterpActorRotation(DeltaTime);
+
+	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), CurrentHealth);
 }
 
 void AMyCharacter::InterpActorRotation(float DeltaTime)

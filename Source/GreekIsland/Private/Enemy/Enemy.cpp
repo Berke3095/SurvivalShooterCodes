@@ -89,6 +89,9 @@ void AEnemy::BeginPlay()
 			GetMesh()->SetAllBodiesBelowSimulatePhysics(Spine2, true);
 		}
 	}
+
+	FTimerHandle MovementUpdateTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(MovementUpdateTimerHandle, this, &AEnemy::ChasePlayer, 0.5f, true); 
 }
 
 // Called every frame
@@ -114,12 +117,6 @@ void AEnemy::Tick(float DeltaTime)
 		DistanceInFloat = Distance.Size(); 
 
 		//UE_LOG(LogTemp, Warning, TEXT("Distance: %f"), DistanceInFloat); 
-	}
-
-	EnemyController = Cast<AAIController>(GetController()); 
-	if (EnemyController && MyCharacter) 
-	{
-		EnemyController->MoveToActor(MyCharacter); 
 	}
 
 	if (DistanceInFloat <= 200.f)
@@ -166,12 +163,19 @@ void AEnemy::EnableCollision()
 { 
 	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); 
 	LeftHandComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);  
+	bCollisionOn = true;
 }
 
 void AEnemy::DisableCollision() 
 {
 	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
 	LeftHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
+	bCollisionOn = false;
+}
+
+void AEnemy::SetHasDamaged(bool BoolValue)
+{
+	bHasDamaged = BoolValue; 
 }
 
 void AEnemy::DestroyDeadEnemy()
@@ -181,21 +185,30 @@ void AEnemy::DestroyDeadEnemy()
 
 void AEnemy::OnRightHandOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherActor->IsA(AMyCharacter::StaticClass()))
+	if (OtherActor && OtherActor->IsA(AMyCharacter::StaticClass()) && !bHasDamaged && bCollisionOn)
 	{
-		// Right hand has overlapped with MyCharacter
-		// You can add your logic here, e.g., deal damage or trigger some event
-		UE_LOG(LogTemp, Warning, TEXT("Right hand overlapped with MyCharacter"));
+		EnemyDealDamage(EnemyDamage);
+		bHasDamaged = true; 
+		//UE_LOG(LogTemp, Warning, TEXT("Right hand overlapped with MyCharacter"));
 	}
 }
 
 void AEnemy::OnLeftHandOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherActor->IsA(AMyCharacter::StaticClass()))
+	if (OtherActor && OtherActor->IsA(AMyCharacter::StaticClass()) && !bHasDamaged && bCollisionOn)
 	{
-		// Left hand has overlapped with MyCharacter
-		// You can add your logic here, e.g., deal damage or trigger some event
-		UE_LOG(LogTemp, Warning, TEXT("Left hand overlapped with MyCharacter"));
+		EnemyDealDamage(EnemyDamage);
+		bHasDamaged = true;
+		//UE_LOG(LogTemp, Warning, TEXT("Left hand overlapped with MyCharacter"));
+	}
+}
+
+void AEnemy::ChasePlayer()
+{
+	EnemyController = Cast<AAIController>(GetController()); 
+	if (EnemyController && MyCharacter) 
+	{
+		EnemyController->MoveToActor(MyCharacter, 10.f); 
 	}
 }
 
