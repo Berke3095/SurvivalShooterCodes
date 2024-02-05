@@ -27,7 +27,10 @@ protected:
 	//Default character state   
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
 
-	class UMyCharacterAnimInstance* AnimInstance;
+	class UMyCharacterAnimInstance* MyCharacterAnimInstance; 
+
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* GetHitMontage;
 
 	//Inputs and actions:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -120,9 +123,6 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class AWeapon* OverlappingWeapon;
 
-	//Bool for aim state
-	bool bAiming;
-
 	//Bool for firing state
 	bool bFiring;
 
@@ -146,8 +146,14 @@ public:
 	UFUNCTION()
 	float GetMaxWalkSpeed() const;
 
+	UFUNCTION() 
+	void PlayHitReaction(); 
+
 	float MaxHealth;
 	float CurrentHealth;
+
+	//Bool for aim state
+	bool bAiming; 
 
 	virtual void Tick(float DeltaTime) override;
 

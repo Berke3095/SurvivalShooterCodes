@@ -11,7 +11,8 @@
 #include "Weapons/Weapon.h"
 #include "Characters/CharacterStates.h"
 #include "Characters/MyCharacterAnimInstance.h"
-#include "Combat/CombatComponent.h"
+#include "Combat/CombatComponent.h" 
+#include "Animation/AnimMontage.h"
 
 
 // Sets default values
@@ -55,7 +56,7 @@ void AMyCharacter::BeginPlay()
 	}
 
 	//Initialize AnimInstance script
-	AnimInstance = Cast<UMyCharacterAnimInstance>(GetMesh()->GetAnimInstance()); 
+	MyCharacterAnimInstance = Cast<UMyCharacterAnimInstance>(GetMesh()->GetAnimInstance());  
 	
 	//Setting defaults
 	if (Camera)
@@ -82,6 +83,36 @@ float AMyCharacter::GetMaxWalkSpeed() const
 	return GetCharacterMovement()->MaxWalkSpeed;
 }
 
+//Playing hit reaction anim
+void AMyCharacter::PlayHitReaction() 
+{ 
+	if (MyCharacterAnimInstance && GetHitMontage) 
+	{
+		int32 Selection;
+		FName SectionName = FName(); 
+		MyCharacterAnimInstance->Montage_Play(GetHitMontage);   
+		if (bAiming)
+		{
+			Selection = 1;
+		} 
+		else { Selection = 0; }
+
+		switch (Selection)
+		{
+		case 0:
+			SectionName = FName("Equipped_Hit");
+			break;
+		case 1:
+			SectionName = FName("Aim_Hit");
+			break;
+		default:
+			break;
+		}
+		MyCharacterAnimInstance->Montage_JumpToSection(SectionName, GetHitMontage);   
+	}
+
+}
+
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -90,7 +121,7 @@ void AMyCharacter::Tick(float DeltaTime)
 
 	InterpActorRotation(DeltaTime);
 
-	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), CurrentHealth);
+	//UE_LOG(LogTemp, Warning, TEXT("Health: %f"), CurrentHealth);
 }
 
 void AMyCharacter::InterpActorRotation(float DeltaTime)
@@ -192,7 +223,7 @@ void AMyCharacter::Jump(const FInputActionValue& InputValue)
 	{
 		// Jump function already exists
 		ACharacter::Jump(); 
-		AnimInstance->SetbJustJumped(true); 
+		MyCharacterAnimInstance->SetbJustJumped(true); 
 
 		// Set the timer for the delay
 		float DelayTime = 1.2f;  
@@ -206,7 +237,7 @@ void AMyCharacter::ResetJump()
 	JumpTimerHandle.Invalidate();
 
 	//Reset jump
-	AnimInstance->SetbJustJumped(false);
+	MyCharacterAnimInstance->SetbJustJumped(false); 
 }
 
 bool AMyCharacter::CanJump() const
@@ -241,7 +272,7 @@ void AMyCharacter::Interact(const FInputActionValue& InputValue)
 
 void AMyCharacter::Aim(const FInputActionValue& InputValue)
 {
-	if (CharacterState == ECharacterState::ECS_Unequipped || AnimInstance->GetbIsFalling() == true) { return; }
+	if (CharacterState == ECharacterState::ECS_Unequipped || MyCharacterAnimInstance->GetbIsFalling() == true) { return; } 
 	const bool Aim = InputValue.Get<bool>();
 	if (Aim)
 	{
@@ -261,7 +292,7 @@ void AMyCharacter::Fire(const FInputActionValue& InputValue)
 		bFiring = true;
 		if (bFiring)
 		{
-			if (AnimInstance && AnimInstance->Montage_IsPlaying(FireMontage)) 
+			if (MyCharacterAnimInstance && MyCharacterAnimInstance->Montage_IsPlaying(FireMontage)) 
 			{
 				// Don't play the animation if it's already playing
 				return;
@@ -278,9 +309,9 @@ void AMyCharacter::Fire(const FInputActionValue& InputValue)
 
 void AMyCharacter::PlayFireMontage()
 {
-	if (AnimInstance)
+	if (MyCharacterAnimInstance)
 	{
-		AnimInstance->Montage_Play(FireMontage);
+		MyCharacterAnimInstance->Montage_Play(FireMontage);
 	}
 }
 // Called to bind functionality to input

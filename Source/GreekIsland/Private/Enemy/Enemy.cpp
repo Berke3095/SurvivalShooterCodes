@@ -32,13 +32,13 @@ AEnemy::AEnemy()
 	LeftHandComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	LeftHandComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Overlap);
 
-	MaxHealth = 100;
+	MaxHealth = 500;
 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
 	
 	EnemyPace = GetCharacterMovement()->Velocity.Size();
 
-	if (bChasingCharacter)
+	if (bChasingCharacter && !bIsAttacking)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 250.f;
 
@@ -53,7 +53,6 @@ AEnemy::AEnemy()
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 75.f;
 
-		//Define physical animation data
 		PhysicalAnimationData.bIsLocalSimulation = false;
 		PhysicalAnimationData.OrientationStrength = 1000.f;
 		PhysicalAnimationData.AngularVelocityStrength = 100.f;
@@ -98,6 +97,8 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	UE_LOG(LogTemp, Warning, TEXT("Attacking: %s"), bIsAttacking ? TEXT("true") : TEXT("false")); 
 
 	if (GetCharacterMovement() && GetCharacterMovement()->Velocity.Size() > 0.0f) 
 	{
@@ -146,11 +147,15 @@ void AEnemy::Tick(float DeltaTime)
 				AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);     
 			}
 		}
+		GetWorld()->GetTimerManager().ClearTimer(StopAttackHandler); 
 	}
 	else
 	{
-		float DelayTime = 2.0f; // Adjust the delay time as needed
-		GetWorld()->GetTimerManager().SetTimer(StopAttackHandler, this, &AEnemy::StopAttacking, DelayTime);
+		if (!GetWorldTimerManager().IsTimerActive(StopAttackHandler)) 
+		{
+			float DelayTime = 2.f; // Adjust the delay time as needed
+			GetWorldTimerManager().SetTimer(StopAttackHandler, this, &AEnemy::StopAttacking, DelayTime);
+		} 
 	}
 }
 
@@ -251,7 +256,8 @@ void AEnemy::EnemyDealDamage(float DamageValue)
 {
 	if (MyCharacter)
 	{
-		MyCharacter->CurrentHealth -= DamageValue;
+		MyCharacter->CurrentHealth -= DamageValue; 
+		MyCharacter->PlayHitReaction();
 	}
 }
 
