@@ -71,10 +71,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	bool bFiringAnim;
 
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+	float CurrentHealth;
+
 public:
 
-	bool GetbIsFalling() const { return bIsFalling; }
+	FORCEINLINE bool GetbIsFalling() const { return bIsFalling; }
 
-	FORCEINLINE bool SetbJustJumped(bool BoolValue) { return bJustJumped = BoolValue; }
-	bool GetbJustJumped() const { return bJustJumped; }
+	FORCEINLINE bool SetbJustJumped(bool BoolValue) { return bJustJumped = BoolValue; } 
+	FORCEINLINE bool GetbJustJumped() const { return bJustJumped; } 
 };

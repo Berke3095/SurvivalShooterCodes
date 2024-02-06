@@ -21,6 +21,10 @@ public:
     // Override the DrawHUD function
     virtual void DrawHUD() override;
 
+protected:
+
+    virtual void BeginPlay() override;
+
 private:
 
     // Function to draw the crosshair
@@ -38,7 +42,13 @@ private:
 
     class UCharacterMovementComponent* MyCharacterMovement;
 
-    TArray<AActor*> FoundActors; 
+    TArray<AActor*> FoundActors;  
+
+    UPROPERTY(EditDefaultsOnly, Category = Hud)
+    TSubclassOf<class UMyOverlay> MyOverlayClass;
+
+    UPROPERTY()
+    class UMyOverlay* MyOverlay; 
 
 public:
     float DistanceToCenter;
@@ -49,7 +59,9 @@ public:
     float HitIndicatorThickness;
 
     //Hit indicator
-    void DrawHit();
+    FORCEINLINE void DrawHit(); 
+
+    FORCEINLINE UMyOverlay* GetMyOverlay() const { return MyOverlay; }
 
     
 };

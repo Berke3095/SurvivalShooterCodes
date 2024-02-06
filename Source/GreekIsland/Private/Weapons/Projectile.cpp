@@ -74,6 +74,7 @@ void AProjectile::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+//Projectile hit
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Enemy = Cast<AEnemy>(OtherActor);
@@ -131,6 +132,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 	GetWorldTimerManager().SetTimer(DestroyTimer, this, &AProjectile::DestroyProjectile, .2f, false);
 }
 
+//Spawning bullet holes on zombies
 void AProjectile::SpawnBloodHoleDecal(const FHitResult& Hit)
 {
 	if (BloodHoleDecalMaterial)
@@ -152,6 +154,7 @@ void AProjectile::SpawnBloodHoleDecal(const FHitResult& Hit)
 	}
 }
 
+//Spawning bullet holes on walls
 void AProjectile::SpawnBulletHoleDecal(const FHitResult& Hit)
 {
 	if (BulletHoleDecalMaterial)
@@ -164,11 +167,13 @@ void AProjectile::SpawnBulletHoleDecal(const FHitResult& Hit)
 	}
 }
 
+//Destroying the bullet after the hit
 void AProjectile::DestroyProjectile()
 {
 	Destroy();
 }
 
+//Spawning blood stains on the floor towards the player (Random)
 void AProjectile::SpawnStainDecal()
 {
 	if (BloodStainMaterials[0] && Enemy && GetWorld()->GetFirstPlayerController())
@@ -214,6 +219,7 @@ void AProjectile::SpawnStainDecal()
 	}
 }
 
+//Projectiles dealing damage to zombies
 void AProjectile::DealDamage(float DamageValue, FVector ImpulseDirection)
 {
 	if (Enemy)

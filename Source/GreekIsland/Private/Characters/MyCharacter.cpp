@@ -13,6 +13,7 @@
 #include "Characters/MyCharacterAnimInstance.h"
 #include "Combat/CombatComponent.h" 
 #include "Animation/AnimMontage.h"
+#include "HUD/MyHUD.h"
 
 
 // Sets default values
@@ -53,6 +54,12 @@ void AMyCharacter::BeginPlay()
 		{
 			Subsystem->AddMappingContext(CharacterMappingContext, 0);
 		}
+
+		AMyHUD* MyHUD = Cast<AMyHUD>(PlayerController->GetHUD()); 
+		if (MyHUD)
+		{
+
+		}
 	}
 
 	//Initialize AnimInstance script
@@ -78,6 +85,7 @@ void AMyCharacter::BeginPlay()
 	}
 }
 
+//Getting the max walk speed 
 float AMyCharacter::GetMaxWalkSpeed() const
 {
 	return GetCharacterMovement()->MaxWalkSpeed;
@@ -117,9 +125,21 @@ void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	InterpFOV(DeltaTime);
+	if (!bCharacterDead)
+	{
+		InterpFOV(DeltaTime);
 
-	InterpActorRotation(DeltaTime);
+		InterpActorRotation(DeltaTime);
+	}
+
+	if (CurrentHealth <= 0) 
+	{
+		bCharacterDead = true;
+		GetCharacterMovement()->DisableMovement(); 
+		
+		//Reset camera after death
+		ResetCamera();  
+	} 
 
 	//UE_LOG(LogTemp, Warning, TEXT("Health: %f"), CurrentHealth);
 }
@@ -285,7 +305,7 @@ void AMyCharacter::Fire(const FInputActionValue& InputValue)
 {
 	CombatComponent = FindComponentByClass<UCombatComponent>(); 
 
-	if (!bAiming) { return; }
+	if (!bAiming || bCharacterDead) { return; } 
 	const bool Fire = InputValue.Get<bool>(); 
 	if (Fire)
 	{
@@ -312,6 +332,27 @@ void AMyCharacter::PlayFireMontage()
 	if (MyCharacterAnimInstance)
 	{
 		MyCharacterAnimInstance->Montage_Play(FireMontage);
+	}
+}
+void AMyCharacter::ResetCamera()
+{
+	// Reset camera FOV and location to default values
+	CurrentFOV = DefaultFOV;
+	CurrentArmLength = DefaultArmLength;
+	CurrentSocketOffsetY = DefaultSocketOffsetY;
+	CurrentSocketOffsetZ = DefaultSocketOffsetZ;
+
+	// Apply the changes to the camera and spring arm
+	if (Camera)
+	{
+		Camera->SetFieldOfView(CurrentFOV);
+	}
+
+	if (SpringArm)
+	{
+		SpringArm->TargetArmLength = CurrentArmLength;
+		SpringArm->SocketOffset.Y = CurrentSocketOffsetY;
+		SpringArm->SocketOffset.Z = CurrentSocketOffsetZ;
 	}
 }
 // Called to bind functionality to input

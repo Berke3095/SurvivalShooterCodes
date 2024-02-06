@@ -30,8 +30,8 @@ AWeapon::AWeapon()
 	AreaSphere->SetupAttachment(RootComponent);
 	AreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore); 
 	AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap); 
-	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);   
-	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);   
+	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);     
+	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);     
 
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
 	PickupWidget->SetupAttachment(RootComponent);
@@ -47,19 +47,21 @@ void AWeapon::BeginPlay()
 	}
 }
 
+//Player overlapping the weapon sphere
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AMyCharacter* MyCharacter = Cast<AMyCharacter>(OtherActor);
-	if (MyCharacter && PickupWidget)
+	if (MyCharacter && PickupWidget && !MyCharacter->bCharacterDead)
 	{
 		PickupWidget->SetVisibility(true);
 		MyCharacter->SetOverlappingWeapon(this);
 	}
 }
 
+//Player leaving the sphere of weapon object
 void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	AMyCharacter* MyCharacter = Cast<AMyCharacter>(OtherActor); 
+	AMyCharacter* MyCharacter = Cast<AMyCharacter>(OtherActor);  
 	if (MyCharacter && PickupWidget)
 	{
 		PickupWidget->SetVisibility(false);
@@ -67,12 +69,14 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	}
 }
 
+//Equip the weapon
 void AWeapon::Equip(USceneComponent* InParent, FName InSocketName)
 {
 	FAttachmentTransformRules TransformRules(EAttachmentRule::SnapToTarget, true);
 	WeaponMesh->AttachToComponent(InParent, TransformRules, InSocketName);
 }
 
+//Show widget
 void AWeapon::ShowPickupWidget(bool bShowWidget)
 {
 	if (PickupWidget)
@@ -81,10 +85,11 @@ void AWeapon::ShowPickupWidget(bool bShowWidget)
 	}
 }
 
+//Fire animations of the weapon / spawning shells
 void AWeapon::Fire(const FVector& HitTarget)
 {
 	APawn* InstigatorPawn = Cast<APawn>(GetOwner()); //Player is the Instigator
-	if (FireAnimation)
+	if (FireAnimation) 
 	{
 		WeaponMesh->PlayAnimation(FireAnimation, false);
 	}

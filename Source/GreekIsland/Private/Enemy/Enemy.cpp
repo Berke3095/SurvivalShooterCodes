@@ -35,11 +35,17 @@ AEnemy::AEnemy()
 	MaxHealth = 500;
 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
+
+	PhysicalAnimation = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent")); 
+
+	//Get bone name
+	Spine2 = FName(TEXT("Spine")); 
 	
-	EnemyPace = GetCharacterMovement()->Velocity.Size();
+	EnemyPace = GetCharacterMovement()->Velocity.Size(); 
 
 	if (bChasingCharacter && !bIsAttacking)
 	{
+		//Strong body
 		GetCharacterMovement()->MaxWalkSpeed = 250.f;
 
 		//Define physical animation data
@@ -51,6 +57,7 @@ AEnemy::AEnemy()
 	}
 	else
 	{
+		//Weak body
 		GetCharacterMovement()->MaxWalkSpeed = 75.f;
 
 		PhysicalAnimationData.bIsLocalSimulation = false;
@@ -59,11 +66,6 @@ AEnemy::AEnemy()
 		PhysicalAnimationData.PositionStrength = 1000.f;
 		PhysicalAnimationData.VelocityStrength = 100.f;
 	}
-
-	PhysicalAnimation = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent"));
-
-	//Get bone name
-	Spine2 = FName(TEXT("Spine"));
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -98,7 +100,7 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UE_LOG(LogTemp, Warning, TEXT("Attacking: %s"), bIsAttacking ? TEXT("true") : TEXT("false")); 
+	//UE_LOG(LogTemp, Warning, TEXT("Attacking: %s"), bIsAttacking ? TEXT("true") : TEXT("false")); 
 
 	if (GetCharacterMovement() && GetCharacterMovement()->Velocity.Size() > 0.0f) 
 	{
@@ -111,51 +113,51 @@ void AEnemy::Tick(float DeltaTime)
 	}
 
 	MyCharacter = Cast<AMyCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)); 
-	if (MyCharacter)
+	if (MyCharacter && !MyCharacter->bCharacterDead)
 	{
-		Distance = GetActorLocation() - MyCharacter->GetActorLocation(); 
+		Distance = GetActorLocation() - MyCharacter->GetActorLocation();  
 
-		DistanceInFloat = Distance.Size(); 
+		DistanceInFloat = Distance.Size();  
 
-		//UE_LOG(LogTemp, Warning, TEXT("Distance: %f"), DistanceInFloat); 
-	}
+		//UE_LOG(LogTemp, Warning, TEXT("Distance: %f"), DistanceInFloat);  
 
-	if (DistanceInFloat <= 200.f)
-	{
-		bIsAttacking = true; 
-
-		AnimInstance = GetMesh()->GetAnimInstance(); 
-		if (AnimInstance && AttackMontage)
+		if (DistanceInFloat <= 200.f)
 		{
-			if (!AnimInstance->Montage_IsPlaying(AttackMontage))
-			{
-				AnimInstance->Montage_Play(AttackMontage);
-				int32 Selection = FMath::RandRange(0, 1);
-				FName SectionName = FName();
+			bIsAttacking = true;
 
-				switch (Selection)
+			AnimInstance = GetMesh()->GetAnimInstance();
+			if (AnimInstance && AttackMontage)
+			{
+				if (!AnimInstance->Montage_IsPlaying(AttackMontage))
 				{
-				case 0:
-					SectionName = FName("Overhand");
-					break;
-				case 1:
-					SectionName = FName("Hook");
-					break;
-				default:
-					break;
+					AnimInstance->Montage_Play(AttackMontage);
+					int32 Selection = FMath::RandRange(0, 1);
+					FName SectionName = FName();
+
+					switch (Selection)
+					{
+					case 0:
+						SectionName = FName("Overhand");
+						break;
+					case 1:
+						SectionName = FName("Hook");
+						break;
+					default:
+						break;
+					}
+					AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
 				}
-				AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);     
+			}
+			GetWorld()->GetTimerManager().ClearTimer(StopAttackHandler);
+		}
+		else
+		{
+			if (!GetWorldTimerManager().IsTimerActive(StopAttackHandler))
+			{
+				float DelayTime = 2.f; // Adjust the delay time as needed
+				GetWorldTimerManager().SetTimer(StopAttackHandler, this, &AEnemy::StopAttacking, DelayTime);
 			}
 		}
-		GetWorld()->GetTimerManager().ClearTimer(StopAttackHandler); 
-	}
-	else
-	{
-		if (!GetWorldTimerManager().IsTimerActive(StopAttackHandler)) 
-		{
-			float DelayTime = 2.f; // Adjust the delay time as needed
-			GetWorldTimerManager().SetTimer(StopAttackHandler, this, &AEnemy::StopAttacking, DelayTime);
-		} 
 	}
 }
 

@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Weapons/Projectile.h" 
+#include "HUD/MyOverlay.h"
 
 AMyHUD::AMyHUD() 
 {
@@ -20,13 +21,36 @@ AMyHUD::AMyHUD()
     HitIndicatorThickness = 1.f;
 }
 
+void AMyHUD::BeginPlay()
+{
+    Super::BeginPlay();
+
+    //Creating overlay
+    UWorld* World = GetWorld();
+    if (World)
+    {
+        APlayerController* PlayerController = World->GetFirstPlayerController();
+        if (PlayerController)
+        {
+            MyCharacter = Cast<AMyCharacter>(PlayerController->GetPawn());
+
+            MyOverlay = CreateWidget<UMyOverlay>(PlayerController, MyOverlayClass);     
+            MyOverlay->AddToViewport();   
+        }
+    } 
+}
+
 void AMyHUD::DrawHUD()
 {
     Super::DrawHUD(); 
     
-	DrawCrosshair();
-    InterpCrosshair();
-    DrawHit();
+    //Draw crosshair
+    if (!MyCharacter->bCharacterDead)
+    {
+        DrawCrosshair();
+        InterpCrosshair(); 
+        DrawHit(); 
+    }
 }
 
 void AMyHUD::DrawCrosshair()
@@ -55,12 +79,6 @@ void AMyHUD::DrawCrosshair()
 
 void AMyHUD::InterpCrosshair()
 {
-    // Initialize MyCharacter
-    if (APlayerController* PlayerController = GetOwningPlayerController())
-    {
-        MyCharacter = Cast<AMyCharacter>(PlayerController->GetPawn());
-    }
-
     if (MyCharacter)
     {
         MyCharacterMovement = MyCharacter->GetCharacterMovement();
@@ -74,8 +92,7 @@ void AMyHUD::InterpCrosshair()
     else
     {
         DistanceToCenter = FMath::FInterpTo(DistanceToCenter, DefaultDistanceToCenter, GetWorld()->GetDeltaSeconds(), 10.0f);
-    }
-    
+    } 
 }
 
 void AMyHUD::DrawHit()
@@ -105,9 +122,8 @@ void AMyHUD::DrawHit()
             }
         }
     }
-
-    
 }
+
 
 
 

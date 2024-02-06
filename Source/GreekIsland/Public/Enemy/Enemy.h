@@ -22,8 +22,6 @@ protected:
 
 	class UEnemyAnimInstance* EnemyAnimInstance;
 
-	class UPhysicalAnimationComponent* PhysicalAnimation;
-
 	bool bIsRagdoll; 
 
 	UPROPERTY() 
@@ -31,8 +29,6 @@ protected:
 
 	UPROPERTY()
 	class AAIController* EnemyController;
-
-	FPhysicalAnimationData PhysicalAnimationData;  
 
 	void DestroyDeadEnemy();
 
@@ -60,6 +56,10 @@ protected:
 	bool bCollisionOn = false;
 private:
 
+	class UPhysicalAnimationComponent* PhysicalAnimation; 
+
+	FPhysicalAnimationData PhysicalAnimationData; 
+
 	FName Spine2;
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
@@ -67,9 +67,10 @@ private:
 
 	class UAnimInstance* AnimInstance;
 
-	void StopAttacking();
-	FTimerHandle StopAttackHandler;
-
+	FTimerHandle StopAttackHandler; 
+	void StopAttacking(); 
+	
+	//Attack collisions set
 	UFUNCTION(BlueprintCallable)
 	void EnableCollision(); 
 	UFUNCTION(BlueprintCallable)
@@ -96,12 +97,16 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float EnemyPace;
 
-	void ActivateRagdoll(FVector ImpulseDirection, FName HitBone);
+	//Activating ragdoll as the enemy dies
+	FORCEINLINE void ActivateRagdoll(FVector ImpulseDirection, FName HitBone); 
 
-	void HitReaction(FVector ImpulseDirection, FName HitBone);
+	//Impulse on the shot bone
+	FORCEINLINE void HitReaction(FVector ImpulseDirection, FName HitBone); 
 
-	void EnemyDealDamage(float DamageValue);
+	//Enemy dealing damage
+	FORCEINLINE void EnemyDealDamage(float DamageValue);
 
+	//Assigning damage to enemy attacks
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float EnemyDamage = 20;
 	

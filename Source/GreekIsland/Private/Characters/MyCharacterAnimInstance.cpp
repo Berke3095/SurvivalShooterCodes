@@ -51,5 +51,6 @@ void UMyCharacterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 		CharacterState = MyCharacter->GetCharacterState(); 
 		bAimingAnim = MyCharacter->GetAimState();
 		bFiringAnim = MyCharacter->GetFireState();
+		CurrentHealth = MyCharacter->CurrentHealth; 
 	}
 }

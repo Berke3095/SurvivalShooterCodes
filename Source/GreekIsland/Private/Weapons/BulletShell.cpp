@@ -43,6 +43,7 @@ void ABulletShell::DestroyShell()
 	Destroy();
 }
 
+//Shells hitting the floor
 void ABulletShell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (!bHasPlayedSound && ShellSound)

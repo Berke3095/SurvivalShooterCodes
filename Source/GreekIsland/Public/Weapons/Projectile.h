@@ -72,11 +72,11 @@ protected:
 	UFUNCTION()
 	void SpawnStainDecal();
 
-private:
-
 	//Bullet pace
-	UPROPERTY(VisibleAnywhere)
-	class UProjectileMovementComponent* ProjectileMovementComponent;
+	UPROPERTY(VisibleAnywhere) 
+	class UProjectileMovementComponent* ProjectileMovementComponent; 
+
+private:
 
 public:	
 

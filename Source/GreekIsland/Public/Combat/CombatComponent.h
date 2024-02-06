@@ -29,12 +29,14 @@ protected:
 	//Trace direction
 	FVector CrosshairWorldDirection;
 
+	//Trace hit target
 	FVector HitTarget;
 
 	class AMyHUD* MyHud;
 
 	class AMyCharacter* MyCharacter;
 
+	//Bullet spread
 	float BulletSpread;
 	float RandomPitch;
 	float RandomYaw;

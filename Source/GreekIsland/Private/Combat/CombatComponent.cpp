@@ -31,7 +31,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 {
 	MyCharacter = Cast<AMyCharacter>(GetOwner());
 	MyHud = Cast<AMyHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
-	if (MyHud && MyCharacter)
+	if (MyHud && MyCharacter && !MyCharacter->bCharacterDead)
 	{	
 		//Getting the random bullet spread 
 		if (MyHud->DistanceToCenter > 20.f && MyCharacter->GetFireState() == true)
@@ -113,6 +113,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	//Shooting mechanics
 	FHitResult HitResult;
 	TraceUnderCrosshairs(HitResult);
 }

@@ -27,6 +27,7 @@ protected:
 	//Default character state   
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
 
+	//Anim Instance
 	class UMyCharacterAnimInstance* MyCharacterAnimInstance; 
 
 	UPROPERTY(EditAnywhere)
@@ -98,8 +99,10 @@ protected:
 	float CurrentSocketOffsetY;
 	float DefaultSocketOffsetZ;
 	float CurrentSocketOffsetZ;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AimSettings) 
 	float ZoomSocketOffsetY = 55.f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AimSettings)  
 	float ZoomSocketOffsetZ = 20.f;
 
@@ -131,7 +134,11 @@ protected:
 	UAnimMontage* FireMontage;
 	void PlayFireMontage();
 
+	//CombatMechanics component
 	class UCombatComponent* CombatComponent;
+
+	//Camera reset after death
+	void ResetCamera();
 
 public:	
 
@@ -143,14 +150,14 @@ public:
 
 	FORCEINLINE bool GetFireState() const { return bFiring; }
 
-	UFUNCTION()
-	float GetMaxWalkSpeed() const;
+	FORCEINLINE float GetMaxWalkSpeed() const;
 
-	UFUNCTION() 
-	void PlayHitReaction(); 
+	FORCEINLINE void PlayHitReaction();  
 
+	//Health attributes
 	float MaxHealth;
 	float CurrentHealth;
+	bool bCharacterDead = false;
 
 	//Bool for aim state
 	bool bAiming; 
