@@ -76,6 +76,8 @@ protected:
 	UPROPERTY(VisibleAnywhere) 
 	class UProjectileMovementComponent* ProjectileMovementComponent; 
 
+	class AMyCharacter* PlayerCharacter;
+
 private:
 
 public:	

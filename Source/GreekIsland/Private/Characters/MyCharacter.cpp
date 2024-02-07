@@ -14,6 +14,9 @@
 #include "Combat/CombatComponent.h" 
 #include "Animation/AnimMontage.h"
 #include "HUD/MyHUD.h"
+#include "HUD/MyOverlay.h"
+#include "Kismet/GameplayStatics.h" 
+#include "Enemy/Enemy.h"
 
 
 // Sets default values
@@ -21,8 +24,6 @@ AMyCharacter::AMyCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	MaxHealth = 100;
 
 	//Camera placement
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
@@ -46,6 +47,7 @@ void AMyCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	CurrentHealth = MaxHealth;
+	CurrentStamina = MaxStamina;
 
 	//Get mapping context:
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
@@ -58,7 +60,7 @@ void AMyCharacter::BeginPlay()
 		AMyHUD* MyHUD = Cast<AMyHUD>(PlayerController->GetHUD()); 
 		if (MyHUD)
 		{
-
+			MyOverlay = MyHUD->GetMyOverlay();
 		}
 	}
 
@@ -121,6 +123,11 @@ void AMyCharacter::PlayHitReaction()
 
 }
 
+void AMyCharacter::SetKillCount()
+{
+	KillCount++;
+}
+
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -142,8 +149,60 @@ void AMyCharacter::Tick(float DeltaTime)
 	} 
 
 	//UE_LOG(LogTemp, Warning, TEXT("Health: %f"), CurrentHealth);
+
+	if (GetCharacterMovement()->MaxWalkSpeed == 400.f)
+	{
+		bSprinting = true;
+	}
+	else { bSprinting = false; }
+
+	if (MyOverlay)
+	{
+		//Calculating health percentage
+		float HealthPercentage = FMath::Clamp(CurrentHealth / MaxHealth, 0.0f, 1.0f);
+
+		//Calculating kill count
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy::StaticClass(), FoundEnemies);  
+
+		MyOverlay->SetHealthBarPercent(HealthPercentage);
+		MyOverlay->SetKillCount(KillCount);
+
+		if (bSprinting)
+		{
+			CurrentStamina = FMath::Max(MinStamina, CurrentStamina - SprintStaminaConsumptionRate * DeltaTime); 
+			MyOverlay->SetStaminaBarPercent(CurrentStamina / MaxStamina); 
+
+			if (CurrentStamina == MinStamina)
+			{
+				bStaminaZero = true;
+			}
+		}
+		else
+		{
+			if (!bStaminaZero)
+			{
+				CurrentStamina = FMath::Min(MaxStamina, CurrentStamina + SprintStaminaRegenRate * DeltaTime);
+				MyOverlay->SetStaminaBarPercent(CurrentStamina / MaxStamina);
+			}
+			else
+			{
+				if (!GetWorldTimerManager().IsTimerActive(StaminaRegenTimerHandle))
+				{
+					float RegenDelay = 3.0f;
+					GetWorldTimerManager().SetTimer(StaminaRegenTimerHandle, this, &AMyCharacter::Exhaust, RegenDelay, false);
+				}
+			}
+		}
+		UE_LOG(LogTemp, Warning, TEXT("CurrentStamina: %f"), CurrentStamina);
+	}	
 }
 
+void AMyCharacter::Exhaust()
+{
+	bStaminaZero = false;
+}
+
+//Delayed regen for stamina if equal to 0
 void AMyCharacter::InterpActorRotation(float DeltaTime)
 {
 	if (bAiming)
@@ -268,12 +327,14 @@ bool AMyCharacter::CanJump() const
 
 void AMyCharacter::Sprint(const FInputActionValue& InputValue)
 {
-	if (bAiming == true) { return; }
+	if (bAiming == true || bCharacterDead || bStaminaZero) { return; }
+
 	//Adding bool for sprint action
 	const bool Run = InputValue.Get<bool>();
 	if (Run)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 400.f;
+		
 	}
 }
 
@@ -355,6 +416,7 @@ void AMyCharacter::ResetCamera()
 		SpringArm->SocketOffset.Z = CurrentSocketOffsetZ;
 	}
 }
+
 // Called to bind functionality to input
 void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {

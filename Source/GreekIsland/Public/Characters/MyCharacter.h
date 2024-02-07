@@ -109,7 +109,7 @@ protected:
 	//No jump repeat
 	void ResetJump();
 	bool CanJump() const;
-	FTimerHandle JumpTimerHandle;
+	FTimerHandle JumpTimerHandle; 
 
 	//Camera
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -140,6 +140,14 @@ protected:
 	//Camera reset after death
 	void ResetCamera();
 
+	class UMyOverlay* MyOverlay;
+
+	TArray<AActor*> FoundEnemies; 
+	int32 KillCount = 0; 
+
+	FTimerHandle StaminaRegenTimerHandle;
+	void Exhaust();
+
 public:	
 
 	FORCEINLINE void SetOverlappingWeapon(AWeapon* Weapon) { OverlappingWeapon = Weapon; }
@@ -152,15 +160,26 @@ public:
 
 	FORCEINLINE float GetMaxWalkSpeed() const;
 
-	FORCEINLINE void PlayHitReaction();  
+	FORCEINLINE void PlayHitReaction(); 
+
+	FORCEINLINE void SetKillCount(); 
 
 	//Health attributes
-	float MaxHealth;
+	const float MaxHealth = 100;
 	float CurrentHealth;
 	bool bCharacterDead = false;
 
+	//Stamina attributes
+	const float MaxStamina = 100;
+	const float MinStamina = 0.f;
+	float CurrentStamina;
+	const float SprintStaminaConsumptionRate = 20.f;
+	const float SprintStaminaRegenRate = 20.f;
+	bool bSprinting = false;
+	bool bStaminaZero = false;
+
 	//Bool for aim state
-	bool bAiming; 
+	bool bAiming = false; 
 
 	virtual void Tick(float DeltaTime) override;
 

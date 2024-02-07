@@ -59,7 +59,7 @@ AProjectile::AProjectile()
 	BloodStainDecalComponent->DecalSize = FVector(3.0f, 30.0f, 30.0f);
 	BloodStainDecalComponent->SetFadeScreenSize(0.f);
 
-	BloodStainMaterials.SetNum(8); 
+	BloodStainMaterials.SetNum(8);   
 }
 
 void AProjectile::BeginPlay()
@@ -67,6 +67,8 @@ void AProjectile::BeginPlay()
 	Super::BeginPlay();
 
 	CollisionBox->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+
+	PlayerCharacter = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()); 
 }
 
 void AProjectile::Tick(float DeltaTime)
@@ -177,10 +179,8 @@ void AProjectile::DestroyProjectile()
 void AProjectile::SpawnStainDecal()
 {
 	if (BloodStainMaterials[0] && Enemy && GetWorld()->GetFirstPlayerController())
-	{
-		AMyCharacter* PlayerCharacter = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-
-		if (PlayerCharacter)
+	{	 
+		if (PlayerCharacter) 
 		{
 			FVector PlayerLocation = PlayerCharacter->GetActorLocation() - FVector(0.f, 0.f, PlayerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
 			FVector EnemyLocation = Enemy->GetActorLocation() - FVector(0.f, 0.f, Enemy->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
@@ -234,6 +234,7 @@ void AProjectile::DealDamage(float DamageValue, FVector ImpulseDirection)
 		if (Enemy->CurrentHealth <= 0)
 		{
 			Enemy->ActivateRagdoll(ImpulseDirection, Enemy->HitBoneName);
+			PlayerCharacter->SetKillCount();
 		}
 	}
 }
