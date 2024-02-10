@@ -33,6 +33,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Effects")
 	class UParticleSystem* ZombieHitParticles;
 
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	class UParticleSystem* ZombieHeadshotParticles;
+
 	//Bullet hole decal
 	UPROPERTY(EditAnywhere, Category = "Decal")
 	class UDecalComponent* BloodDecalComponent;
@@ -48,6 +51,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Effects")
 	class USoundCue* ZombieHitSound;
+
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	class USoundCue* ZombieHeadshotSound;
 
 	//Bullet hole decal
 	UPROPERTY(EditAnywhere, Category = "Decal")
@@ -77,6 +83,11 @@ protected:
 	class UProjectileMovementComponent* ProjectileMovementComponent; 
 
 	class AMyCharacter* PlayerCharacter;
+
+	float CritMultiplier = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	class UNiagaraSystem* NeckBloodSpray; 
 
 private:
 

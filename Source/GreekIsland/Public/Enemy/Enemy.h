@@ -54,6 +54,10 @@ protected:
 
 	bool bHasDamaged = false;
 	bool bCollisionOn = false;
+
+	UPROPERTY(EditAnywhere, Category = "Sounds")
+	class USoundCue* ZombieSound;
+
 private:
 
 	class UPhysicalAnimationComponent* PhysicalAnimation; 
@@ -78,11 +82,17 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void SetHasDamaged(bool BoolValue);
 
+	bool bZombieDead = false;
+	
+	bool bSoundPlaying = false; 
+	void ResetSound();
+	FTimerHandle SoundResetTimer;
+
 public:	
-	float MaxHealth;
+	const float MaxHealth = 100;
 	float CurrentHealth;
 
-	float BulletForce = 2000.f;
+	const float BulletForce = 2000.f;
 	
 	bool bChasingCharacter = true;
 

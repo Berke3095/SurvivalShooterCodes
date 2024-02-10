@@ -11,6 +11,7 @@
 #include "Engine/TimerHandle.h"
 #include "Components/CapsuleComponent.h"
 #include "Characters/MyCharacter.h"
+#include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -89,27 +90,86 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 
 		Enemy->HitBoneName = Hit.BoneName;
 
-		DealDamage(Damage, ImpulseDirection);
+		if (Enemy->HitBoneName == TEXT("Head"))
+		{
+			DealDamage(Damage * CritMultiplier, ImpulseDirection); 
 
-		if (ZombieHitParticles)
-		{ 
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ZombieHitParticles, GetActorTransform()); 
-
-			if (BloodStainMaterials[0])
+			if (ZombieHeadshotParticles && Enemy->CurrentHealth <= 0)
 			{
-				SpawnStainDecal();
+				Enemy->GetMesh()->HideBoneByName(TEXT("Head"), PBO_None);
+
+				FName SocketName = TEXT("SplashSocket");
+				if (Enemy->GetMesh()->DoesSocketExist(SocketName))
+				{
+					FTransform SocketTransform = Enemy->GetMesh()->GetSocketTransform(SocketName); 
+					UGameplayStatics::SpawnEmitterAttached(
+						ZombieHeadshotParticles, 
+						Enemy->GetMesh(),
+						SocketName,
+						FVector::ZeroVector,
+						FRotator::ZeroRotator,
+						EAttachLocation::SnapToTarget,
+						false
+					);
+				}
+
+				if (BloodStainMaterials[0])
+				{
+					SpawnStainDecal();
+				}
+
+				if (ZombieHeadshotSound)
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, ZombieHeadshotSound, GetActorLocation()); 
+				}
+
+				if (BloodHoleDecalMaterial)
+				{
+					SpawnBloodHoleDecal(Hit);
+				}
+
+				//NeckSocket check
+				FName NiagaraSocket = TEXT("NeckSocket");
+				if (Enemy->GetMesh()->DoesSocketExist(NiagaraSocket)) 
+				{
+					FTransform SocketTransform = Enemy->GetMesh()->GetSocketTransform(NiagaraSocket); 
+					// Spawn Niagara effect on the neck bone
+					UNiagaraFunctionLibrary::SpawnSystemAttached( 
+						NeckBloodSpray,
+						Enemy->GetMesh(), 
+						NiagaraSocket, 
+						SocketTransform.GetLocation(), 
+						SocketTransform.Rotator(),
+						EAttachLocation::KeepWorldPosition, 
+						false
+					);
+				} 
 			}
 		}
-		
-		if (ZombieHitSound)
+		else
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, ZombieHitSound, GetActorLocation());
-		}
-		
-		
-		if (BloodHoleDecalMaterial)
-		{
-			SpawnBloodHoleDecal(Hit);
+			DealDamage(Damage, ImpulseDirection);
+
+			if (ZombieHitParticles)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ZombieHitParticles, GetActorTransform());
+
+				if (BloodStainMaterials[0])
+				{
+					SpawnStainDecal();
+				}
+			}
+
+			if (ZombieHitSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, ZombieHitSound, GetActorLocation());
+			}
+
+
+			if (BloodHoleDecalMaterial)
+			{
+				SpawnBloodHoleDecal(Hit);
+			}
 		}
 	}
 	else 

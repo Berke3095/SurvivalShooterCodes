@@ -173,8 +173,8 @@ public:
 	const float MaxStamina = 100;
 	const float MinStamina = 0.f;
 	float CurrentStamina;
-	const float SprintStaminaConsumptionRate = 20.f;
-	const float SprintStaminaRegenRate = 20.f;
+	const float SprintStaminaConsumptionRate = 10.f;
+	const float SprintStaminaRegenRate = 40.f;
 	bool bSprinting = false;
 	bool bStaminaZero = false;
 

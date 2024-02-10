@@ -13,6 +13,7 @@
 #include "Animation/AnimMontage.h"
 #include "AIController.h"
 #include "Components/BoxComponent.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -31,8 +32,6 @@ AEnemy::AEnemy()
 	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);  
 	LeftHandComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	LeftHandComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Overlap);
-
-	MaxHealth = 100;
 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
 
@@ -100,65 +99,93 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//UE_LOG(LogTemp, Warning, TEXT("Attacking: %s"), bIsAttacking ? TEXT("true") : TEXT("false")); 
-
-	if (GetCharacterMovement() && GetCharacterMovement()->Velocity.Size() > 0.0f) 
+	if (CurrentHealth <= 0)
 	{
-		FVector VelocityDirection = GetCharacterMovement()->Velocity.GetSafeNormal(); //Move Direction
-		FRotator TargetRotation = VelocityDirection.Rotation();   
+		bZombieDead = true;
 
-		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, RotationInterpSpeed); 
-
-		FaceRotation(NewRotation, DeltaTime);
+		ZombieSound = nullptr;
 	}
+	else { bZombieDead = false; }
 
-	MyCharacter = Cast<AMyCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)); 
-	if (MyCharacter && !MyCharacter->bCharacterDead)
+	if (!bZombieDead)
 	{
-		Distance = GetActorLocation() - MyCharacter->GetActorLocation();  
+		//UE_LOG(LogTemp, Warning, TEXT("Attacking: %s"), bIsAttacking ? TEXT("true") : TEXT("false")); 
 
-		DistanceInFloat = Distance.Size();  
-
-		//UE_LOG(LogTemp, Warning, TEXT("Distance: %f"), DistanceInFloat);  
-
-		if (DistanceInFloat <= 200.f)
+		if (ZombieSound && !bSoundPlaying && !bIsAttacking)
 		{
-			bIsAttacking = true;
+			UGameplayStatics::PlaySoundAtLocation(this, ZombieSound, GetActorLocation());
+			bSoundPlaying = true;
 
-			AnimInstance = GetMesh()->GetAnimInstance();
-			if (AnimInstance && AttackMontage)
+			if (!GetWorldTimerManager().IsTimerActive(SoundResetTimer))
 			{
-				if (!AnimInstance->Montage_IsPlaying(AttackMontage))
-				{
-					AnimInstance->Montage_Play(AttackMontage);
-					int32 Selection = FMath::RandRange(0, 1);
-					FName SectionName = FName();
+				float DelayTime = 3.f; // Adjust the delay time as needed
+				GetWorldTimerManager().SetTimer(SoundResetTimer, this, &AEnemy::ResetSound, DelayTime);
+			}
+		}
 
-					switch (Selection)
+		if (GetCharacterMovement() && GetCharacterMovement()->Velocity.Size() > 0.0f)
+		{
+			FVector VelocityDirection = GetCharacterMovement()->Velocity.GetSafeNormal(); //Move Direction
+			FRotator TargetRotation = VelocityDirection.Rotation();
+
+			FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, RotationInterpSpeed);
+
+			FaceRotation(NewRotation, DeltaTime);
+		}
+
+		MyCharacter = Cast<AMyCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		if (MyCharacter && !MyCharacter->bCharacterDead)
+		{
+			Distance = GetActorLocation() - MyCharacter->GetActorLocation();
+
+			DistanceInFloat = Distance.Size();
+
+			//UE_LOG(LogTemp, Warning, TEXT("Distance: %f"), DistanceInFloat);   
+
+			if (DistanceInFloat <= 200.f)
+			{
+				bIsAttacking = true;
+
+				AnimInstance = GetMesh()->GetAnimInstance();
+				if (AnimInstance && AttackMontage)
+				{
+					if (!AnimInstance->Montage_IsPlaying(AttackMontage))
 					{
-					case 0:
-						SectionName = FName("Overhand");
-						break;
-					case 1:
-						SectionName = FName("Hook");
-						break;
-					default:
-						break;
+						AnimInstance->Montage_Play(AttackMontage);
+						int32 Selection = FMath::RandRange(0, 1);
+						FName SectionName = FName();
+
+						switch (Selection)
+						{
+						case 0:
+							SectionName = FName("Overhand");
+							break;
+						case 1:
+							SectionName = FName("Hook");
+							break;
+						default:
+							break;
+						}
+						AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
 					}
-					AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
+				}
+				GetWorld()->GetTimerManager().ClearTimer(StopAttackHandler);
+			}
+			else
+			{
+				if (!GetWorldTimerManager().IsTimerActive(StopAttackHandler))
+				{
+					float DelayTime = 2.f; // Adjust the delay time as needed
+					GetWorldTimerManager().SetTimer(StopAttackHandler, this, &AEnemy::StopAttacking, DelayTime);
 				}
 			}
-			GetWorld()->GetTimerManager().ClearTimer(StopAttackHandler);
-		}
-		else
-		{
-			if (!GetWorldTimerManager().IsTimerActive(StopAttackHandler))
-			{
-				float DelayTime = 2.f; // Adjust the delay time as needed
-				GetWorldTimerManager().SetTimer(StopAttackHandler, this, &AEnemy::StopAttacking, DelayTime);
-			}
 		}
 	}
+}
+
+void AEnemy::ResetSound()
+{
+	bSoundPlaying = false;
 }
 
 void AEnemy::StopAttacking()
@@ -231,11 +258,13 @@ void AEnemy::ActivateRagdoll(FVector ImpulseDirection, FName HitBone)
 	} 
 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore); 
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore); 
 
 	GetMesh()->SetSimulatePhysics(true);
 
 	// Apply impulse only to the specified bone
-	GetMesh()->AddImpulse(ImpulseDirection * 1000, HitBone, true); 
+	//GetMesh()->AddImpulse(ImpulseDirection * 1000, HitBone, true); 
 
 	bIsRagdoll = true;
 

@@ -193,7 +193,7 @@ void AMyCharacter::Tick(float DeltaTime)
 				}
 			}
 		}
-		UE_LOG(LogTemp, Warning, TEXT("CurrentStamina: %f"), CurrentStamina);
+		//UE_LOG(LogTemp, Warning, TEXT("CurrentStamina: %f"), CurrentStamina);
 	}	
 }
 
