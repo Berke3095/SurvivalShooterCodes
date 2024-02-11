@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Characters/CharacterStates.h" 
 #include "Enemy.generated.h"
 
 UCLASS()
@@ -58,6 +59,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Sounds")
 	class USoundCue* ZombieSound;
 
+	void DelayRagdoll();
+
+	UPROPERTY(BlueprintReadOnly) 
+	EDeathPose DeathPose = EDeathPose::EDP_Alive;
+
 private:
 
 	class UPhysicalAnimationComponent* PhysicalAnimation; 
@@ -68,6 +74,11 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	class UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	class UAnimMontage* DeathMontage;
+
+	bool bDeathAnimPlayed = false;
 
 	class UAnimInstance* AnimInstance;
 
@@ -81,8 +92,6 @@ private:
 	void DisableCollision(); 
 	UFUNCTION(BlueprintCallable)
 	void SetHasDamaged(bool BoolValue);
-
-	bool bZombieDead = false;
 	
 	bool bSoundPlaying = false; 
 	void ResetSound();
@@ -119,6 +128,8 @@ public:
 	//Assigning damage to enemy attacks
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float EnemyDamage = 20;
+
+	bool bZombieDead = false; 
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -28,6 +28,7 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	}
 	if (Enemy)
 	{
-		bIsAttackingAnim = Enemy->bIsAttacking;
+		bIsAttackingAnim = Enemy->bIsAttacking; 
+		bEnemyDead = Enemy->bZombieDead; 
 	}
 }

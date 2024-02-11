@@ -35,4 +35,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 	bool bIsAttackingAnim;
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+	bool bEnemyDead; 
+
 };

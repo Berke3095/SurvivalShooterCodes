@@ -99,11 +99,46 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (CurrentHealth <= 0)
+	if (CurrentHealth <= 0 && !bDeathAnimPlayed)
 	{
 		bZombieDead = true;
+		bDeathAnimPlayed = true;
 
 		ZombieSound = nullptr;
+
+		AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance && DeathMontage && bZombieDead)
+		{
+			if (!AnimInstance->Montage_IsPlaying(DeathMontage))
+			{
+				AnimInstance->Montage_Play(DeathMontage);
+				int32 Selection = FMath::RandRange(0, 3);
+				FName SectionName = FName();
+
+				switch (Selection)
+				{
+				case 0:
+					SectionName = FName("0");
+					DeathPose = EDeathPose::EDP_Dead0;
+					break;
+				case 1:
+					SectionName = FName("1");
+					DeathPose = EDeathPose::EDP_Dead1;
+					break;
+				case 2:
+					SectionName = FName("2");
+					DeathPose = EDeathPose::EDP_Dead2;
+					break;
+				case 3:
+					SectionName = FName("3");
+					DeathPose = EDeathPose::EDP_Dead3;
+					break;
+				default:
+					break;
+				}
+				AnimInstance->Montage_JumpToSection(SectionName, DeathMontage);
+			}
+		}
 	}
 	else { bZombieDead = false; }
 
@@ -261,12 +296,12 @@ void AEnemy::ActivateRagdoll(FVector ImpulseDirection, FName HitBone)
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore); 
 
-	GetMesh()->SetSimulatePhysics(true);
+	//FTimerHandle RagdollHandler;
+	//GetWorld()->GetTimerManager().SetTimer(RagdollHandler, this, &AEnemy::DelayRagdoll, 4.f); 
+	
 
 	// Apply impulse only to the specified bone
 	//GetMesh()->AddImpulse(ImpulseDirection * 1000, HitBone, true); 
-
-	bIsRagdoll = true;
 
 	if (PhysicalAnimation)
 	{
@@ -275,7 +310,13 @@ void AEnemy::ActivateRagdoll(FVector ImpulseDirection, FName HitBone)
 	}
 
 	FTimerHandle DestroyHandler;
-	GetWorld()->GetTimerManager().SetTimer(DestroyHandler, this, &AEnemy::DestroyDeadEnemy, 5.f); 
+	GetWorld()->GetTimerManager().SetTimer(DestroyHandler, this, &AEnemy::DestroyDeadEnemy, 4.f); 
+}
+
+void AEnemy::DelayRagdoll()
+{
+	GetMesh()->SetSimulatePhysics(true); 
+	bIsRagdoll = true; 
 }
 
 void AEnemy::HitReaction(FVector ImpulseDirection, FName HitBone)
