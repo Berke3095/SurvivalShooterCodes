@@ -142,7 +142,7 @@ protected:
 
 	class UMyOverlay* MyOverlay;
 
-	TArray<AActor*> FoundEnemies; 
+	//TArray<AActor*> FoundEnemies; 
 	int32 KillCount = 0; 
 
 	FTimerHandle StaminaRegenTimerHandle;

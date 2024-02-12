@@ -44,11 +44,23 @@ protected:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* LeftHandComponent;
 
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* RightFootComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* LeftFootComponent;
+
 	UFUNCTION()
 	void OnRightHandOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 	void OnLeftHandOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnLeftFootOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnRightFootOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 	void ChasePlayer();
@@ -64,13 +76,17 @@ protected:
 	UPROPERTY(BlueprintReadOnly) 
 	EDeathPose DeathPose = EDeathPose::EDP_Alive;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Movement")
+	float MaxWalkSpeed = 250.f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "BodyPart")
+	FName Spine2; 
+
 private:
 
 	class UPhysicalAnimationComponent* PhysicalAnimation; 
 
 	FPhysicalAnimationData PhysicalAnimationData; 
-
-	FName Spine2;
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	class UAnimMontage* AttackMontage;
@@ -87,9 +103,15 @@ private:
 	
 	//Attack collisions set
 	UFUNCTION(BlueprintCallable)
-	void EnableCollision(); 
+	void EnableCollisionHands(); 
 	UFUNCTION(BlueprintCallable)
-	void DisableCollision(); 
+	void DisableCollisionHands();  
+
+	UFUNCTION(BlueprintCallable)
+	void EnableCollisionFeet(); 
+	UFUNCTION(BlueprintCallable)
+	void DisableCollisionFeet(); 
+	
 	UFUNCTION(BlueprintCallable)
 	void SetHasDamaged(bool BoolValue);
 	
@@ -98,7 +120,10 @@ private:
 	FTimerHandle SoundResetTimer;
 
 public:	
-	const float MaxHealth = 100;
+	UPROPERTY(EditAnywhere, Category = "Attributes")
+	float MaxHealth = 100;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
 	float CurrentHealth;
 
 	const float BulletForce = 2000.f;

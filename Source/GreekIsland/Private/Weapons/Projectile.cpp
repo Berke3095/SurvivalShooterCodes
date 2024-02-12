@@ -115,7 +115,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 
 				if (BloodStainMaterials[0])
 				{
-					SpawnStainDecal();
+					SpawnStainDecalEnemy();
 				}
 
 				if (ZombieHeadshotSound)
@@ -156,7 +156,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 
 				if (BloodStainMaterials[0])
 				{
-					SpawnStainDecal();
+					SpawnStainDecalEnemy();
 				}
 			}
 
@@ -190,8 +190,10 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 		}
 	}
 
-	FTimerHandle DestroyTimer;
-	GetWorldTimerManager().SetTimer(DestroyTimer, this, &AProjectile::DestroyProjectile, .2f, false);
+	//FTimerHandle DestroyTimer;
+	//GetWorldTimerManager().SetTimer(DestroyTimer, this, &AProjectile::DestroyProjectile, .2f, false);
+
+	Destroy();
 }
 
 //Spawning bullet holes on zombies
@@ -236,7 +238,7 @@ void AProjectile::DestroyProjectile()
 }
 
 //Spawning blood stains on the floor towards the player (Random)
-void AProjectile::SpawnStainDecal()
+void AProjectile::SpawnStainDecalEnemy()
 {
 	if (BloodStainMaterials[0] && Enemy && GetWorld()->GetFirstPlayerController())
 	{	 

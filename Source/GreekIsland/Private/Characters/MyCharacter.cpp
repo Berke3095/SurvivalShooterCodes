@@ -162,7 +162,7 @@ void AMyCharacter::Tick(float DeltaTime)
 		float HealthPercentage = FMath::Clamp(CurrentHealth / MaxHealth, 0.0f, 1.0f);
 
 		//Calculating kill count
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy::StaticClass(), FoundEnemies);  
+		//UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy::StaticClass(), FoundEnemies);  
 
 		MyOverlay->SetHealthBarPercent(HealthPercentage);
 		MyOverlay->SetKillCount(KillCount);

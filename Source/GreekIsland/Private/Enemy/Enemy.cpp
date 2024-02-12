@@ -29,9 +29,21 @@ AEnemy::AEnemy()
 
 	LeftHandComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftHandComponent"));
 	LeftHandComponent->SetupAttachment(GetMesh(), FName(TEXT("LeftHand")));
-	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);  
+	LeftHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);  
 	LeftHandComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	LeftHandComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Overlap);
+
+	RightFootComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("RightFootComponent"));
+	RightFootComponent->SetupAttachment(GetMesh(), FName(TEXT("RightFoot")));
+	RightFootComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightFootComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	RightFootComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Overlap);
+
+	LeftFootComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftFootComponent"));
+	LeftFootComponent->SetupAttachment(GetMesh(), FName(TEXT("LeftFoot")));
+	LeftFootComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftFootComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	LeftFootComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Overlap);
 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
 
@@ -45,14 +57,14 @@ AEnemy::AEnemy()
 	if (bChasingCharacter && !bIsAttacking)
 	{
 		//Strong body
-		GetCharacterMovement()->MaxWalkSpeed = 250.f;
+		GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed; 
 
 		//Define physical animation data
 		PhysicalAnimationData.bIsLocalSimulation = false;
-		PhysicalAnimationData.OrientationStrength = 2000.f;
-		PhysicalAnimationData.AngularVelocityStrength = 300.f;
-		PhysicalAnimationData.PositionStrength = 2000.f;
-		PhysicalAnimationData.VelocityStrength = 300.f;
+		PhysicalAnimationData.OrientationStrength = 1000.f;
+		PhysicalAnimationData.AngularVelocityStrength = 100.f;
+		PhysicalAnimationData.PositionStrength = 1000.f;
+		PhysicalAnimationData.VelocityStrength = 100.f;
 	}
 	else
 	{
@@ -77,6 +89,8 @@ void AEnemy::BeginPlay()
 
 	RightHandComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnRightHandOverlap); 
 	LeftHandComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnLeftHandOverlap); 
+	RightFootComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnRightFootOverlap); 
+	LeftFootComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnLeftFootOverlap); 
 
 	CurrentHealth = MaxHealth;
 
@@ -193,10 +207,10 @@ void AEnemy::Tick(float DeltaTime)
 						switch (Selection)
 						{
 						case 0:
-							SectionName = FName("Overhand");
+							SectionName = FName("FirstAttack");
 							break;
 						case 1:
-							SectionName = FName("Hook");
+							SectionName = FName("SecondAttack");
 							break;
 						default:
 							break;
@@ -228,18 +242,32 @@ void AEnemy::StopAttacking()
 	bIsAttacking = false;
 }
 
-void AEnemy::EnableCollision() 
+void AEnemy::EnableCollisionHands() 
 { 
 	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); 
 	LeftHandComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);  
 	bCollisionOn = true;
 }
 
-void AEnemy::DisableCollision() 
+void AEnemy::DisableCollisionHands() 
 {
 	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
 	LeftHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
 	bCollisionOn = false;
+}
+
+void AEnemy::EnableCollisionFeet()
+{
+	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	LeftHandComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	bCollisionOn = true;
+}
+
+void AEnemy::DisableCollisionFeet() 
+{
+	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	bCollisionOn = false; 
 }
 
 void AEnemy::SetHasDamaged(bool BoolValue)
@@ -269,6 +297,24 @@ void AEnemy::OnLeftHandOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 		EnemyDealDamage(EnemyDamage);
 		bHasDamaged = true;
 		//UE_LOG(LogTemp, Warning, TEXT("Left hand overlapped with MyCharacter"));
+	}
+}
+
+void AEnemy::OnLeftFootOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor && OtherActor->IsA(AMyCharacter::StaticClass()) && !bHasDamaged && bCollisionOn)
+	{
+		EnemyDealDamage(EnemyDamage);
+		bHasDamaged = true;
+	}
+}
+
+void AEnemy::OnRightFootOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor && OtherActor->IsA(AMyCharacter::StaticClass()) && !bHasDamaged && bCollisionOn)
+	{
+		EnemyDealDamage(EnemyDamage);
+		bHasDamaged = true;
 	}
 }
 

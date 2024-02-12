@@ -76,7 +76,7 @@ protected:
 	TArray<UMaterialInterface*> BloodStainMaterials;
 
 	UFUNCTION()
-	void SpawnStainDecal();
+	void SpawnStainDecalEnemy();
 
 	//Bullet pace
 	UPROPERTY(VisibleAnywhere) 
