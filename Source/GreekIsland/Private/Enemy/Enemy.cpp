@@ -21,6 +21,8 @@ AEnemy::AEnemy()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	Tags.Add("EnemyTag"); 
+
 	RightHandComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("RightHandComponent"));
 	RightHandComponent->SetupAttachment(GetMesh(), FName(TEXT("RightHand")));
 	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -191,7 +193,7 @@ void AEnemy::Tick(float DeltaTime)
 
 			//UE_LOG(LogTemp, Warning, TEXT("Distance: %f"), DistanceInFloat);   
 
-			if (DistanceInFloat <= 200.f)
+			if (DistanceInFloat <= 100.f)
 			{
 				bIsAttacking = true;
 
@@ -224,10 +226,39 @@ void AEnemy::Tick(float DeltaTime)
 			{
 				if (!GetWorldTimerManager().IsTimerActive(StopAttackHandler))
 				{
-					float DelayTime = 2.f; // Adjust the delay time as needed
+					float DelayTime = 2.f; 
 					GetWorldTimerManager().SetTimer(StopAttackHandler, this, &AEnemy::StopAttacking, DelayTime);
 				}
 			}
+
+			if (bEnemyCanDodge && DistanceInFloat <= 800.f && DistanceInFloat >= 500.f) 
+			{
+				AnimInstance = GetMesh()->GetAnimInstance();
+				if (AnimInstance && DodgeMontage)
+				{
+					if (!AnimInstance->Montage_IsPlaying(DodgeMontage) && !bIsAttacking)
+					{
+						AnimInstance->Montage_Play(DodgeMontage);
+						int32 Selection = 0;
+						FName SectionName = FName();
+
+						switch (Selection)
+						{
+						case 0:
+							SectionName = FName("FirstDodge");
+							break;
+						default:
+							break;
+						}
+						AnimInstance->Montage_JumpToSection(SectionName, DodgeMontage);
+					}
+				}
+
+				FTimerHandle DodgeResetTimer;
+				GetWorld()->GetTimerManager().SetTimer(DodgeResetTimer, this, &AEnemy::SetDodgeFalse, 1.3f, true);
+			}
+
+			//UE_LOG(LogTemp, Warning, TEXT("CanDodge: %s"), bEnemyCanDodge ? TEXT("true") : TEXT("false"));
 		}
 	}
 }
@@ -258,21 +289,16 @@ void AEnemy::DisableCollisionHands()
 
 void AEnemy::EnableCollisionFeet()
 {
-	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	LeftHandComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	RightFootComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	LeftFootComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	bCollisionOn = true;
 }
 
 void AEnemy::DisableCollisionFeet() 
 {
-	RightHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	LeftHandComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightFootComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftFootComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	bCollisionOn = false; 
-}
-
-void AEnemy::SetHasDamaged(bool BoolValue)
-{
-	bHasDamaged = BoolValue; 
 }
 
 void AEnemy::DestroyDeadEnemy()
@@ -363,6 +389,11 @@ void AEnemy::DelayRagdoll()
 {
 	GetMesh()->SetSimulatePhysics(true); 
 	bIsRagdoll = true; 
+}
+
+void AEnemy::SetDodgeFalse()
+{
+	bEnemyCanDodge = false;
 }
 
 void AEnemy::HitReaction(FVector ImpulseDirection, FName HitBone)

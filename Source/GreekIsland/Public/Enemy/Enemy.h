@@ -25,7 +25,6 @@ protected:
 
 	bool bIsRagdoll; 
 
-	UPROPERTY() 
 	class AMyCharacter* MyCharacter;
 
 	UPROPERTY()
@@ -65,7 +64,6 @@ protected:
 	UFUNCTION()
 	void ChasePlayer();
 
-	bool bHasDamaged = false;
 	bool bCollisionOn = false;
 
 	UPROPERTY(EditAnywhere, Category = "Sounds")
@@ -82,6 +80,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "BodyPart")
 	FName Spine2; 
 
+	void SetDodgeFalse();
+
 private:
 
 	class UPhysicalAnimationComponent* PhysicalAnimation; 
@@ -93,6 +93,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	class UAnimMontage* DeathMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	class UAnimMontage* DodgeMontage;
 
 	bool bDeathAnimPlayed = false;
 
@@ -111,9 +114,6 @@ private:
 	void EnableCollisionFeet(); 
 	UFUNCTION(BlueprintCallable)
 	void DisableCollisionFeet(); 
-	
-	UFUNCTION(BlueprintCallable)
-	void SetHasDamaged(bool BoolValue);
 	
 	bool bSoundPlaying = false; 
 	void ResetSound();
@@ -141,6 +141,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float EnemyPace;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	bool bHasDamaged = false; 
+
 	//Activating ragdoll as the enemy dies
 	FORCEINLINE void ActivateRagdoll(FVector ImpulseDirection, FName HitBone); 
 
@@ -155,6 +158,8 @@ public:
 	float EnemyDamage = 20;
 
 	bool bZombieDead = false; 
+
+	bool bEnemyCanDodge = false;
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -6,7 +6,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-
 void UEnemyAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation(); 
@@ -28,7 +27,8 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	}
 	if (Enemy)
 	{
-		bIsAttackingAnim = Enemy->bIsAttacking; 
-		bEnemyDead = Enemy->bZombieDead; 
+		bIsAttackingAnim = Enemy->bIsAttacking;  
+		bEnemyDead = Enemy->bZombieDead;  
+		bEnemyCanDodge = Enemy->bEnemyCanDodge; 
 	}
 }

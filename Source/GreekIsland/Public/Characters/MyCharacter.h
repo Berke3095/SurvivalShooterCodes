@@ -148,6 +148,11 @@ protected:
 	FTimerHandle StaminaRegenTimerHandle;
 	void Exhaust();
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float MaxWalkSpeed = 400.f;
+
+	float CharacterPace;
+
 public:	
 
 	FORCEINLINE void SetOverlappingWeapon(AWeapon* Weapon) { OverlappingWeapon = Weapon; }

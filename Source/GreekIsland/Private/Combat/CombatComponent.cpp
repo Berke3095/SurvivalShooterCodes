@@ -7,6 +7,7 @@
 #include "HUD/MyHUD.h"
 #include "Math/UnrealMathUtility.h"
 #include "Characters/MyCharacter.h"
+#include "Enemy/Enemy.h"
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -116,5 +117,17 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	//Shooting mechanics
 	FHitResult HitResult;
 	TraceUnderCrosshairs(HitResult);
+
+	TArray<AActor*> FoundActors; 
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy::StaticClass(), FoundActors);
+	for (AActor* Actor : FoundActors)
+	{
+		AEnemy* Enemy = Cast<AEnemy>(Actor);
+		if (HitResult.GetActor() == Enemy)  
+		{
+			Enemy->bEnemyCanDodge = true; 
+		}
+	}
 }
 

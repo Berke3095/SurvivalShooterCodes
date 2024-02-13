@@ -25,6 +25,9 @@ AMyCharacter::AMyCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CurrentHealth = MaxHealth;
+	CurrentStamina = MaxStamina; 
+
 	//Camera placement
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent); 
@@ -45,9 +48,6 @@ AMyCharacter::AMyCharacter()
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	CurrentHealth = MaxHealth;
-	CurrentStamina = MaxStamina;
 
 	//Get mapping context:
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
@@ -150,11 +150,15 @@ void AMyCharacter::Tick(float DeltaTime)
 
 	//UE_LOG(LogTemp, Warning, TEXT("Health: %f"), CurrentHealth);
 
-	if (GetCharacterMovement()->MaxWalkSpeed == 400.f)
+	CharacterPace = GetCharacterMovement()->Velocity.Size();
+
+	//UE_LOG(LogTemp, Warning, TEXT("Speed %f"), CharacterPace);
+
+	if (CharacterPace == MaxWalkSpeed)
 	{
 		bSprinting = true;
 	}
-	else { bSprinting = false; }
+	else { bSprinting = false; } 
 
 	if (MyOverlay)
 	{
