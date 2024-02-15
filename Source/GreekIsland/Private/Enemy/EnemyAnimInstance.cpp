@@ -30,5 +30,6 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 		bIsAttackingAnim = Enemy->bIsAttacking;  
 		bEnemyDead = Enemy->bZombieDead;  
 		bEnemyCanDodge = Enemy->bEnemyCanDodge; 
+		DistanceToCharacter = Enemy->DistanceInFloat;
 	}
 }

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "GameFramework/Actor.h" 
 #include "Weapon.generated.h"
 
 UCLASS()
@@ -50,12 +50,20 @@ protected:
 public:	
 
 	//Weapon equip function
-	void Equip(USceneComponent* InParent, FName InSocketName);
+	FORCEINLINE void Equip(USceneComponent* InParent, FName InSocketName);
 
 	//Pickup widget visibility
-	void ShowPickupWidget(bool bShowWidget);
+	FORCEINLINE void ShowPickupWidget(bool bShowWidget);
 
-	void Fire(const FVector& HitTarget);
+	FORCEINLINE void Fire(const FVector& HitTarget);
+
+	FORCEINLINE void SpendAmmo(); 
+
+	UPROPERTY(EditAnywhere) 
+	int32 CurrentAmmo; 
+
+	UPROPERTY(EditAnywhere)
+	int32 MaxAmmoClip; 
 
 	virtual void Tick(float DeltaTime) override;
 };

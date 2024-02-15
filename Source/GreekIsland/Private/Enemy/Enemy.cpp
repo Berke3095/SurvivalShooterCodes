@@ -115,6 +115,15 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (TimeSinceLastAttack < AttackCooldownDuration)
+	{
+		TimeSinceLastAttack += DeltaTime;
+	}
+	if (TimeSinceLastAttack_Leap < AttackCooldownDuration_Leap)
+	{
+		TimeSinceLastAttack_Leap += DeltaTime;
+	}
+
 	if (CurrentHealth <= 0 && !bDeathAnimPlayed)
 	{
 		bZombieDead = true;
@@ -193,14 +202,14 @@ void AEnemy::Tick(float DeltaTime)
 
 			//UE_LOG(LogTemp, Warning, TEXT("Distance: %f"), DistanceInFloat);   
 
-			if (DistanceInFloat <= 100.f)
+			if (DistanceInFloat <= AttackRadius && TimeSinceLastAttack >= AttackCooldownDuration)
 			{
 				bIsAttacking = true;
 
 				AnimInstance = GetMesh()->GetAnimInstance();
 				if (AnimInstance && AttackMontage)
 				{
-					if (!AnimInstance->Montage_IsPlaying(AttackMontage))
+					if (!AnimInstance->Montage_IsPlaying(AttackMontage) && !AnimInstance->Montage_IsPlaying(LeapMontage))
 					{
 						AnimInstance->Montage_Play(AttackMontage);
 						int32 Selection = FMath::RandRange(0, 1);
@@ -218,8 +227,43 @@ void AEnemy::Tick(float DeltaTime)
 							break;
 						}
 						AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
+						//Reset timer
+						TimeSinceLastAttack = 0.0f;
 					}
 				}
+
+				GetWorld()->GetTimerManager().ClearTimer(StopAttackHandler);
+			}
+			else if (DistanceInFloat <= LeapRadius && DistanceInFloat >= AttackRadius && TimeSinceLastAttack_Leap >= AttackCooldownDuration_Leap)
+			{
+				bIsAttacking = true;
+
+				AnimInstance = GetMesh()->GetAnimInstance();
+				if (AnimInstance && LeapMontage)
+				{
+					if (!AnimInstance->Montage_IsPlaying(LeapMontage) && !AnimInstance->Montage_IsPlaying(AttackMontage)) 
+					{
+						AnimInstance->Montage_Play(LeapMontage);
+						int32 Selection = FMath::RandRange(0, 1);
+						FName SectionName = FName();
+
+						switch (Selection)
+						{
+						case 0:
+							SectionName = FName("FirstAttack");
+							break;
+						case 1:
+							SectionName = FName("SecondAttack");
+							break;
+						default:
+							break;
+						}
+						AnimInstance->Montage_JumpToSection(SectionName, LeapMontage);
+						//Reset timer
+						TimeSinceLastAttack_Leap = 0.0f;
+					}
+				}
+
 				GetWorld()->GetTimerManager().ClearTimer(StopAttackHandler);
 			}
 			else
@@ -231,6 +275,7 @@ void AEnemy::Tick(float DeltaTime)
 				}
 			}
 
+			//Just for the "big mouth" variant
 			if (bEnemyCanDodge && DistanceInFloat <= 800.f && DistanceInFloat >= 500.f) 
 			{
 				AnimInstance = GetMesh()->GetAnimInstance();
@@ -349,7 +394,7 @@ void AEnemy::ChasePlayer()
 	EnemyController = Cast<AAIController>(GetController()); 
 	if (EnemyController && MyCharacter) 
 	{
-		EnemyController->MoveToActor(MyCharacter, 10.f); 
+		EnemyController->MoveToActor(MyCharacter, AcceptanceRadius); 
 	}
 }
 
@@ -407,6 +452,7 @@ void AEnemy::EnemyDealDamage(float DamageValue)
 	{
 		MyCharacter->CurrentHealth -= DamageValue; 
 		MyCharacter->PlayHitReaction();
+		MyCharacter->PlayOuch();
 	}
 }
 

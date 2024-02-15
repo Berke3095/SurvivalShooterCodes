@@ -127,6 +127,7 @@ protected:
 	class AWeapon* OverlappingWeapon;
 
 	//Bool for firing state
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 	bool bFiring;
 
 	//Fire montage
@@ -153,6 +154,12 @@ protected:
 
 	float CharacterPace;
 
+	UPROPERTY(EditAnywhere, Category = "Sounds") 
+	class USoundCue* Ouch;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	int32 CurrentAmmo;
+
 public:	
 
 	FORCEINLINE void SetOverlappingWeapon(AWeapon* Weapon) { OverlappingWeapon = Weapon; }
@@ -168,6 +175,8 @@ public:
 	FORCEINLINE void PlayHitReaction(); 
 
 	FORCEINLINE void SetKillCount(); 
+
+	FORCEINLINE void PlayOuch();
 
 	//Health attributes
 	const float MaxHealth = 100;

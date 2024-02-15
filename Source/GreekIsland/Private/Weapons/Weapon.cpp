@@ -18,6 +18,8 @@ AWeapon::AWeapon()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	MaxAmmoClip = 30;
+
 	//Weapon component placements
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
@@ -44,6 +46,8 @@ void AWeapon::BeginPlay()
 	if (PickupWidget)
 	{
 		PickupWidget->SetVisibility(false);
+
+		CurrentAmmo = MaxAmmoClip;  
 	}
 }
 
@@ -88,6 +92,12 @@ void AWeapon::ShowPickupWidget(bool bShowWidget)
 //Fire animations of the weapon / spawning shells
 void AWeapon::Fire(const FVector& HitTarget)
 {
+	if (CurrentAmmo <= 0)
+	{
+		// Handle out of ammo condition
+		return;
+	}
+
 	APawn* InstigatorPawn = Cast<APawn>(GetOwner()); //Player is the Instigator
 	if (FireAnimation) 
 	{
@@ -109,6 +119,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 					SocketTransform.GetLocation(), 
 					SocketTransform.GetRotation().Rotator() 
 				);
+				SpendAmmo();
 			}
 		}
 	}
@@ -140,8 +151,15 @@ void AWeapon::Fire(const FVector& HitTarget)
 	}
 }
 
+void AWeapon::SpendAmmo()
+{
+	CurrentAmmo--;
+}
+
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	UE_LOG(LogTemp, Warning, TEXT("CurrentAmmo: %d"), CurrentAmmo);
 }
 

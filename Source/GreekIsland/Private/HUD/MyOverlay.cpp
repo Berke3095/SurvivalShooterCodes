@@ -29,3 +29,11 @@ void UMyOverlay::SetKillCount(int32 ZombieKillCount)
         DeathCount->SetText(FText::FromString(FString::Printf(TEXT("%d"), ZombieKillCount)));
     }
 }
+
+void UMyOverlay::SetAmmoCount(int32 CurrentAmmo)
+{
+    if (AmmoCount) 
+    {
+        AmmoCount->SetText(FText::FromString(FString::Printf(TEXT("Ammo: %d / 30"), CurrentAmmo))); 
+    }
+}

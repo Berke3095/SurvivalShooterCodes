@@ -42,4 +42,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 	bool bEnemyCanDodge;
 
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+	float DistanceToCharacter;
+
 };

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "Blueprint/UserWidget.h" 
 #include "MyOverlay.generated.h"
 
 /**
@@ -25,10 +25,14 @@ private:
     UPROPERTY(meta = (BindWidget))
     class UTextBlock* DeathCount;
 
+    UPROPERTY(meta = (BindWidget))
+    class UTextBlock* AmmoCount;
+
 public:
 
     //Setting hud dynamics 
     FORCEINLINE void SetHealthBarPercent(float Percent); 
     FORCEINLINE void SetStaminaBarPercent(float Percent); 
     FORCEINLINE void SetKillCount(int32 ZombieKillCount); 
+    FORCEINLINE void SetAmmoCount(int32 CurrentAmmo);
 };

@@ -82,6 +82,24 @@ protected:
 
 	void SetDodgeFalse();
 
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float AttackRadius = 150.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	float AttackCooldownDuration = 1.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	float AttackCooldownDuration_Leap = 15.f;
+
+	float TimeSinceLastAttack; 
+	float TimeSinceLastAttack_Leap;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	float AcceptanceRadius = 15.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	float LeapRadius = 800.f;
+
 private:
 
 	class UPhysicalAnimationComponent* PhysicalAnimation; 
@@ -96,6 +114,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	class UAnimMontage* DodgeMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	class UAnimMontage* LeapMontage;
 
 	bool bDeathAnimPlayed = false;
 

@@ -17,6 +17,7 @@
 #include "HUD/MyOverlay.h"
 #include "Kismet/GameplayStatics.h" 
 #include "Enemy/Enemy.h"
+#include "Sound/SoundCue.h"
 
 
 // Sets default values
@@ -128,9 +129,23 @@ void AMyCharacter::SetKillCount()
 	KillCount++;
 }
 
+void AMyCharacter::PlayOuch()
+{
+	if (Ouch)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, Ouch, GetActorLocation()); 
+	}
+}
+
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (OverlappingWeapon)
+	{
+		CurrentAmmo = OverlappingWeapon->CurrentAmmo;
+
+	}
 
 	if (!bCharacterDead)
 	{
@@ -170,6 +185,10 @@ void AMyCharacter::Tick(float DeltaTime)
 
 		MyOverlay->SetHealthBarPercent(HealthPercentage);
 		MyOverlay->SetKillCount(KillCount);
+		if (CharacterState == ECharacterState::ECS_EquippedRifle)
+		{
+			MyOverlay->SetAmmoCount(CurrentAmmo);
+		}
 
 		if (bSprinting)
 		{
@@ -344,14 +363,14 @@ void AMyCharacter::Sprint(const FInputActionValue& InputValue)
 
 void AMyCharacter::Interact(const FInputActionValue& InputValue)
 {
-	if (CharacterState == ECharacterState::ECS_Equipped) { return; }
+	if (CharacterState == ECharacterState::ECS_EquippedRifle) { return; }
 	const bool Interact = InputValue.Get<bool>();
 	if (OverlappingWeapon && Interact)
 	{
 		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket")); 
 		OverlappingWeapon->ShowPickupWidget(false); 
 		OverlappingWeapon->SetOwner(this); 
-		CharacterState = ECharacterState::ECS_Equipped; 
+		CharacterState = ECharacterState::ECS_EquippedRifle; 
 	}
 }
 
@@ -370,10 +389,15 @@ void AMyCharacter::Fire(const FInputActionValue& InputValue)
 {
 	CombatComponent = FindComponentByClass<UCombatComponent>(); 
 
-	if (!bAiming || bCharacterDead) { return; } 
+	if (bCharacterDead) { return; }
 	const bool Fire = InputValue.Get<bool>(); 
-	if (Fire)
+	if (Fire && bAiming)
 	{
+		if (CurrentAmmo <= 0)
+		{
+			return;
+		}
+
 		bFiring = true;
 		if (bFiring)
 		{
