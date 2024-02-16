@@ -202,7 +202,7 @@ void AMyCharacter::Tick(float DeltaTime)
 		}
 		else
 		{
-			if (!bStaminaZero)
+			if (!bStaminaZero && !bInAir)
 			{
 				CurrentStamina = FMath::Min(MaxStamina, CurrentStamina + SprintStaminaRegenRate * DeltaTime);
 				MyOverlay->SetStaminaBarPercent(CurrentStamina / MaxStamina);
@@ -223,6 +223,32 @@ void AMyCharacter::Tick(float DeltaTime)
 void AMyCharacter::Exhaust()
 {
 	bStaminaZero = false;
+}
+
+void AMyCharacter::PlayReloadMontage()
+{
+	if (MyCharacterAnimInstance && MyCharacterAnimInstance->Montage_IsPlaying(ReloadMontage))
+	{
+		// Don't play the animation if it's already playing
+		return;
+	}
+
+	if (MyCharacterAnimInstance && ReloadMontage)
+	{
+		int32 Selection = 0;
+		FName SectionName = FName();
+		MyCharacterAnimInstance->Montage_Play(ReloadMontage);
+
+		switch (Selection)
+		{
+		case 0:
+			SectionName = FName("Reload1");
+			break;
+		default:
+			break;
+		}
+		MyCharacterAnimInstance->Montage_JumpToSection(SectionName, ReloadMontage);
+	}
 }
 
 //Delayed regen for stamina if equal to 0
@@ -326,6 +352,8 @@ void AMyCharacter::Jump(const FInputActionValue& InputValue)
 		// Jump function already exists
 		ACharacter::Jump(); 
 		MyCharacterAnimInstance->SetbJustJumped(true); 
+		CurrentStamina -= 20.f;
+		bInAir = true;
 
 		// Set the timer for the delay
 		float DelayTime = 1.2f;  
@@ -340,6 +368,8 @@ void AMyCharacter::ResetJump()
 
 	//Reset jump
 	MyCharacterAnimInstance->SetbJustJumped(false); 
+	
+	bInAir = false;
 }
 
 bool AMyCharacter::CanJump() const
@@ -378,7 +408,7 @@ void AMyCharacter::Aim(const FInputActionValue& InputValue)
 {
 	if (CharacterState == ECharacterState::ECS_Unequipped || MyCharacterAnimInstance->GetbIsFalling() == true) { return; } 
 	const bool Aim = InputValue.Get<bool>();
-	if (Aim)
+	if (Aim && !bIsReloading)
 	{
 		bAiming = true;
 	}
@@ -391,7 +421,7 @@ void AMyCharacter::Fire(const FInputActionValue& InputValue)
 
 	if (bCharacterDead) { return; }
 	const bool Fire = InputValue.Get<bool>(); 
-	if (Fire && bAiming)
+	if (Fire && bAiming && !bIsReloading)
 	{
 		if (CurrentAmmo <= 0)
 		{
@@ -414,6 +444,28 @@ void AMyCharacter::Fire(const FInputActionValue& InputValue)
 		}
 	}
 	else { bFiring = false; }
+}
+
+void AMyCharacter::Reload(const FInputActionValue& InputValue)
+{
+	if (CurrentAmmo == 30) { return; }
+	const bool Reload = InputValue.Get<bool>();
+	if (Reload && CharacterState == ECharacterState::ECS_EquippedRifle) 
+	{
+		PlayReloadMontage();
+		FTimerHandle ReloadTimer;
+		GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &AMyCharacter::ReloadWeapon, 2.6f);
+		bIsReloading = true;
+	}
+}
+
+void AMyCharacter::ReloadWeapon()
+{
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->CurrentAmmo = 30;
+	}
+	bIsReloading = false;
 }
 
 void AMyCharacter::PlayFireMontage()
@@ -459,6 +511,8 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AMyCharacter::Interact);
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &AMyCharacter::Aim); 
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMyCharacter::Fire);  
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &AMyCharacter::Reload);
+
 	}
 }
 

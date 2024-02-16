@@ -58,6 +58,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* FireAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* ReloadAction;
+
 	//Input functions
 	void Move(const FInputActionValue& InputValue);
 
@@ -72,6 +75,15 @@ protected:
 	void Aim(const FInputActionValue& InputValue);
 
 	void Fire(const FInputActionValue& InputValue);
+
+	void Reload(const FInputActionValue& InputValue); 
+	void ReloadWeapon();
+
+	UPROPERTY(EditAnywhere) 
+	class UAnimMontage* ReloadMontage;
+
+	void PlayReloadMontage(); 
+	bool bIsReloading = false;
 
 	//Character direction while aim
 	void InterpActorRotation(float DeltaTime);
@@ -110,6 +122,7 @@ protected:
 	void ResetJump();
 	bool CanJump() const;
 	FTimerHandle JumpTimerHandle; 
+	bool bInAir = false;
 
 	//Camera
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -188,7 +201,7 @@ public:
 	const float MinStamina = 0.f;
 	float CurrentStamina;
 	const float SprintStaminaConsumptionRate = 10.f;
-	const float SprintStaminaRegenRate = 40.f;
+	const float SprintStaminaRegenRate = 20.f;
 	bool bSprinting = false;
 	bool bStaminaZero = false;
 
