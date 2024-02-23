@@ -18,6 +18,7 @@
 #include "Kismet/GameplayStatics.h" 
 #include "Enemy/Enemy.h"
 #include "Sound/SoundCue.h"
+#include "Components/SphereComponent.h"
 
 
 // Sets default values
@@ -36,6 +37,11 @@ AMyCharacter::AMyCharacter()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
 	Camera->SetupAttachment(SpringArm);
+
+	SpawnSphere = CreateDefaultSubobject<USphereComponent>(TEXT("SpawnSphere"));
+	SpawnSphere->SetupAttachment(RootComponent); 
+	SpawnSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore); 
+
 
 	//Character rotation relation with camera
 	bUseControllerRotationYaw = false;
@@ -401,6 +407,7 @@ void AMyCharacter::Interact(const FInputActionValue& InputValue)
 		OverlappingWeapon->ShowPickupWidget(false); 
 		OverlappingWeapon->SetOwner(this); 
 		CharacterState = ECharacterState::ECS_EquippedRifle; 
+		OverlappingWeapon->WeaponState = EWeaponState::EWS_Equipped;
 	}
 }
 

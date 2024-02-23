@@ -60,7 +60,7 @@ AProjectile::AProjectile()
 	BloodStainDecalComponent->DecalSize = FVector(3.0f, 30.0f, 30.0f);
 	BloodStainDecalComponent->SetFadeScreenSize(0.f);
 
-	BloodStainMaterials.SetNum(8);   
+	BloodStainMaterials.SetNum(7);   
 }
 
 void AProjectile::BeginPlay()

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h" 
+#include "Characters/CharacterStates.h"
 #include "Weapon.generated.h"
 
 UCLASS()
@@ -47,6 +48,9 @@ protected:
 
 	class UCombatComponent* CombatComponent;
 
+	UPROPERTY(EditAnywhere)
+	float WeaponRotationSpeed = 50.0f;
+
 public:	
 
 	//Weapon equip function
@@ -64,6 +68,8 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	int32 MaxAmmoClip; 
+
+	EWeaponState WeaponState = EWeaponState::EWS_UnEquipped; 
 
 	virtual void Tick(float DeltaTime) override;
 };

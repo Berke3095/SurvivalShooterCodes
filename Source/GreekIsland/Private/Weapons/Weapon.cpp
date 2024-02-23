@@ -159,5 +159,12 @@ void AWeapon::SpendAmmo()
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (WeaponState == EWeaponState::EWS_UnEquipped)
+	{
+		FRotator NewRotation = GetActorRotation();
+		NewRotation.Yaw += WeaponRotationSpeed * DeltaTime; 
+		SetActorRotation(NewRotation); 
+	}
 }
 

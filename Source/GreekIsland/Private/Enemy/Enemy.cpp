@@ -14,6 +14,7 @@
 #include "AIController.h"
 #include "Components/BoxComponent.h"
 #include "Sound/SoundCue.h"
+#include "Enemy/EnemySpawner.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -108,6 +109,8 @@ void AEnemy::BeginPlay()
 
 	FTimerHandle MovementUpdateTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(MovementUpdateTimerHandle, this, &AEnemy::ChasePlayer, 0.5f, true); 
+
+	EnemySpawner = Cast<AEnemySpawner>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemySpawner::StaticClass())); 
 }
 
 // Called every frame
@@ -127,6 +130,16 @@ void AEnemy::Tick(float DeltaTime)
 	if (CurrentHealth <= 0 && !bDeathAnimPlayed)
 	{
 		bZombieDead = true;
+		if (bZombieDead && ActorHasTag("Mutant"))
+		{
+			EnemySpawner->NumOfMutant--;
+		}
+
+		if (bZombieDead && ActorHasTag("BigMouth"))
+		{
+			EnemySpawner->NumOfBigMouth--;
+		}
+
 		bDeathAnimPlayed = true;
 
 		ZombieSound = nullptr;
@@ -145,18 +158,22 @@ void AEnemy::Tick(float DeltaTime)
 				case 0:
 					SectionName = FName("0");
 					DeathPose = EDeathPose::EDP_Dead0;
+					EnemySpawner->NumOfBasics--;
 					break;
 				case 1:
 					SectionName = FName("1");
 					DeathPose = EDeathPose::EDP_Dead1;
+					EnemySpawner->NumOfBasics--;
 					break;
 				case 2:
 					SectionName = FName("2");
 					DeathPose = EDeathPose::EDP_Dead2;
+					EnemySpawner->NumOfBasics--;
 					break;
 				case 3:
 					SectionName = FName("3");
 					DeathPose = EDeathPose::EDP_Dead3;
+					EnemySpawner->NumOfBasics--;
 					break;
 				default:
 					break;
@@ -246,6 +263,11 @@ void AEnemy::Tick(float DeltaTime)
 						AnimInstance->Montage_Play(LeapMontage);
 						int32 Selection = FMath::RandRange(0, 1);
 						FName SectionName = FName();
+
+						if (ActorHasTag("BigMouth"))
+						{
+							Selection = 0; 
+						} 
 
 						switch (Selection)
 						{

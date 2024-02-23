@@ -33,6 +33,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* GetHitMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "EnemySpawn")
+	class USphereComponent* SpawnSphere;
+
 	//Inputs and actions:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	class UInputMappingContext* CharacterMappingContext;
@@ -177,6 +180,7 @@ public:
 
 	FORCEINLINE void SetOverlappingWeapon(AWeapon* Weapon) { OverlappingWeapon = Weapon; }
 
+	UFUNCTION(BlueprintPure, Category = "Character") 
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 
 	FORCEINLINE bool GetAimState() const { return bAiming; }

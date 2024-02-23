@@ -100,6 +100,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
 	float LeapRadius = 800.f;
 
+	class AEnemySpawner* EnemySpawner;
+
 private:
 
 	class UPhysicalAnimationComponent* PhysicalAnimation; 

@@ -34,6 +34,6 @@ void UMyOverlay::SetAmmoCount(int32 CurrentAmmo)
 {
     if (AmmoCount) 
     {
-        AmmoCount->SetText(FText::FromString(FString::Printf(TEXT("Ammo: %d / 30"), CurrentAmmo))); 
+        AmmoCount->SetText(FText::FromString(FString::Printf(TEXT("Ammo: %d / Infinite"), CurrentAmmo))); 
     }
 }
