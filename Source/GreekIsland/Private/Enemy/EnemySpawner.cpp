@@ -28,29 +28,33 @@ void AEnemySpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CharacterState = MyCharacter->GetCharacterState();
-
-	if (CharacterState == ECharacterState::ECS_EquippedRifle && !MyCharacter->bCharacterDead)
+	if (MyCharacter)
 	{
-		if (!bBasicSpawnTimerActive && NumOfBasics <= 30)
+		CharacterState = MyCharacter->GetCharacterState();
+
+		if (CharacterState == ECharacterState::ECS_EquippedRifle && !MyCharacter->bCharacterDead)
 		{
-			GetWorld()->GetTimerManager().SetTimer(BasicSpawnTimer, this, &AEnemySpawner::SpawnBasicAtRandom, BasicSpawnDelay); 
-			bBasicSpawnTimerActive = true;
-			NumOfBasics++;
-		}
-		if (!bBigMouthSpawnTimerActive && NumOfBigMouth <= 5)
-		{
-			GetWorld()->GetTimerManager().SetTimer(BigMouthSpawnTimer, this, &AEnemySpawner::SpawnBigMouthAtRandom, BigMouthSpawnDelay); 
-			bBigMouthSpawnTimerActive = true;
-			NumOfBigMouth++;
-		}
-		if (!bMutantSpawnTimerActive && NumOfMutant <= 1)
-		{
-			GetWorld()->GetTimerManager().SetTimer(MutantSpawnTimer, this, &AEnemySpawner::SpawnMutantAtRandom, MutantSpawnDelay); 
-			bMutantSpawnTimerActive = true;
-			NumOfMutant++;
+			if (!bBasicSpawnTimerActive && NumOfBasics <= 30)
+			{
+				GetWorld()->GetTimerManager().SetTimer(BasicSpawnTimer, this, &AEnemySpawner::SpawnBasicAtRandom, BasicSpawnDelay);
+				bBasicSpawnTimerActive = true;
+				NumOfBasics++;
+			}
+			if (!bBigMouthSpawnTimerActive && NumOfBigMouth <= 5)
+			{
+				GetWorld()->GetTimerManager().SetTimer(BigMouthSpawnTimer, this, &AEnemySpawner::SpawnBigMouthAtRandom, BigMouthSpawnDelay);
+				bBigMouthSpawnTimerActive = true;
+				NumOfBigMouth++;
+			}
+			if (!bMutantSpawnTimerActive && NumOfMutant <= 1)
+			{
+				GetWorld()->GetTimerManager().SetTimer(MutantSpawnTimer, this, &AEnemySpawner::SpawnMutantAtRandom, MutantSpawnDelay);
+				bMutantSpawnTimerActive = true;
+				NumOfMutant++;
+			}
 		}
 	}
+	
 	//UE_LOG(LogTemp, Warning, TEXT("Number of Basics: %d"), NumOfBasics);
 	//UE_LOG(LogTemp, Warning, TEXT("Number of BigMouth: %d"), NumOfBigMouth); 
 	//UE_LOG(LogTemp, Warning, TEXT("Number of Mutant: %d"), NumOfMutant); 
@@ -59,7 +63,7 @@ void AEnemySpawner::Tick(float DeltaTime)
 
 void AEnemySpawner::SpawnEnemyAtRandom(int32 EnemyIndex, bool& bSpawnTimerActive, FTimerHandle& SpawnTimer)
 {
-	if (EnemiesToSpawn.Num() > 0)
+	if (EnemiesToSpawn.Num() > 0 && EnemyIndex >= 0)
 	{
 		UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 		if (NavSys)
