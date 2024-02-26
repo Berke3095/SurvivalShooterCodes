@@ -54,14 +54,14 @@ protected:
 public:	
 
 	//Weapon equip function
-	FORCEINLINE void Equip(USceneComponent* InParent, FName InSocketName);
+	void Equip(USceneComponent* InParent, FName InSocketName);
 
 	//Pickup widget visibility
-	FORCEINLINE void ShowPickupWidget(bool bShowWidget);
+	void ShowPickupWidget(bool bShowWidget);
 
-	FORCEINLINE void Fire(const FVector& HitTarget);
+	void Fire(const FVector& HitTarget);
 
-	FORCEINLINE void SpendAmmo(); 
+	void SpendAmmo(); 
 
 	UPROPERTY(EditAnywhere) 
 	int32 CurrentAmmo; 

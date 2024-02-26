@@ -30,7 +30,7 @@ void AEnemySpawner::Tick(float DeltaTime)
 
 	CharacterState = MyCharacter->GetCharacterState();
 
-	if (CharacterState == ECharacterState::ECS_EquippedRifle)
+	if (CharacterState == ECharacterState::ECS_EquippedRifle && !MyCharacter->bCharacterDead)
 	{
 		if (!bBasicSpawnTimerActive && NumOfBasics <= 30)
 		{

@@ -168,13 +168,13 @@ public:
 	bool bHasDamaged = false; 
 
 	//Activating ragdoll as the enemy dies
-	FORCEINLINE void ActivateRagdoll(FVector ImpulseDirection, FName HitBone); 
+	void ActivateRagdoll(FVector ImpulseDirection, FName HitBone); 
 
 	//Impulse on the shot bone
-	FORCEINLINE void HitReaction(FVector ImpulseDirection, FName HitBone); 
+	void HitReaction(FVector ImpulseDirection, FName HitBone); 
 
 	//Enemy dealing damage
-	FORCEINLINE void EnemyDealDamage(float DamageValue);
+	void EnemyDealDamage(float DamageValue);
 
 	//Assigning damage to enemy attacks
 	UPROPERTY(EditAnywhere, Category = "Combat")

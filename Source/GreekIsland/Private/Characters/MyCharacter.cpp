@@ -18,8 +18,6 @@
 #include "Kismet/GameplayStatics.h" 
 #include "Enemy/Enemy.h"
 #include "Sound/SoundCue.h"
-#include "Components/SphereComponent.h"
-
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -36,12 +34,7 @@ AMyCharacter::AMyCharacter()
 	SpringArm->bUsePawnControlRotation = true; 
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
-	Camera->SetupAttachment(SpringArm);
-
-	SpawnSphere = CreateDefaultSubobject<USphereComponent>(TEXT("SpawnSphere"));
-	SpawnSphere->SetupAttachment(RootComponent); 
-	SpawnSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore); 
-
+	Camera->SetupAttachment(SpringArm); 
 
 	//Character rotation relation with camera
 	bUseControllerRotationYaw = false;
@@ -137,7 +130,7 @@ void AMyCharacter::SetKillCount()
 
 void AMyCharacter::PlayOuch()
 {
-	if (Ouch)
+	if (Ouch && !bCharacterDead)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, Ouch, GetActorLocation()); 
 	}
@@ -233,27 +226,14 @@ void AMyCharacter::Exhaust()
 
 void AMyCharacter::PlayReloadMontage()
 {
-	if (MyCharacterAnimInstance && MyCharacterAnimInstance->Montage_IsPlaying(ReloadMontage))
-	{
-		// Don't play the animation if it's already playing
-		return;
-	}
-
 	if (MyCharacterAnimInstance && ReloadMontage)
 	{
-		int32 Selection = 0;
-		FName SectionName = FName();
-		MyCharacterAnimInstance->Montage_Play(ReloadMontage);
-
-		switch (Selection)
+		// Check if the montage is already playing
+		if (!MyCharacterAnimInstance->Montage_IsPlaying(ReloadMontage))
 		{
-		case 0:
-			SectionName = FName("Reload1");
-			break;
-		default:
-			break;
+			// Play the reload montage
+			MyCharacterAnimInstance->Montage_Play(ReloadMontage);
 		}
-		MyCharacterAnimInstance->Montage_JumpToSection(SectionName, ReloadMontage);
 	}
 }
 

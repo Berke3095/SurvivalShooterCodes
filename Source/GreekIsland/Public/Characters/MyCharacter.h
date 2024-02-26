@@ -33,9 +33,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* GetHitMontage;
 
-	UPROPERTY(EditDefaultsOnly, Category = "EnemySpawn")
-	class USphereComponent* SpawnSphere;
-
 	//Inputs and actions:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	class UInputMappingContext* CharacterMappingContext;
@@ -160,6 +157,7 @@ protected:
 	class UMyOverlay* MyOverlay;
 
 	//TArray<AActor*> FoundEnemies; 
+	UPROPERTY(BlueprintReadOnly)
 	int32 KillCount = 0; 
 
 	FTimerHandle StaminaRegenTimerHandle;
@@ -178,26 +176,30 @@ protected:
 
 public:	
 
-	FORCEINLINE void SetOverlappingWeapon(AWeapon* Weapon) { OverlappingWeapon = Weapon; }
+	void SetOverlappingWeapon(AWeapon* Weapon) { OverlappingWeapon = Weapon; }
 
 	UFUNCTION(BlueprintPure, Category = "Character") 
-	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+	ECharacterState GetCharacterState() const { return CharacterState; }
 
-	FORCEINLINE bool GetAimState() const { return bAiming; }
+	bool GetAimState() const { return bAiming; }
 
-	FORCEINLINE bool GetFireState() const { return bFiring; }
+	bool GetFireState() const { return bFiring; }
 
-	FORCEINLINE float GetMaxWalkSpeed() const;
+	float GetMaxWalkSpeed() const;
 
-	FORCEINLINE void PlayHitReaction(); 
+	void PlayHitReaction(); 
 
-	FORCEINLINE void SetKillCount(); 
+	void SetKillCount(); 
 
-	FORCEINLINE void PlayOuch();
+	void PlayOuch();
 
 	//Health attributes
-	const float MaxHealth = 100;
+	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
+	float MaxHealth = 100;
+
 	float CurrentHealth;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
 	bool bCharacterDead = false;
 
 	//Stamina attributes

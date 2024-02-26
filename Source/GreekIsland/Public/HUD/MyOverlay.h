@@ -31,8 +31,8 @@ private:
 public:
 
     //Setting hud dynamics 
-    FORCEINLINE void SetHealthBarPercent(float Percent); 
-    FORCEINLINE void SetStaminaBarPercent(float Percent); 
-    FORCEINLINE void SetKillCount(int32 ZombieKillCount); 
-    FORCEINLINE void SetAmmoCount(int32 CurrentAmmo);
+    void SetHealthBarPercent(float Percent); 
+    void SetStaminaBarPercent(float Percent); 
+    void SetKillCount(int32 ZombieKillCount); 
+    void SetAmmoCount(int32 CurrentAmmo);
 };

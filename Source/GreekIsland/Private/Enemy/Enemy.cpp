@@ -232,6 +232,11 @@ void AEnemy::Tick(float DeltaTime)
 						int32 Selection = FMath::RandRange(0, 1);
 						FName SectionName = FName();
 
+						if (ActorHasTag("BigMouth") || ActorHasTag("Mutant"))
+						{
+							Selection = 0;
+						}
+
 						switch (Selection)
 						{
 						case 0:
@@ -261,21 +266,13 @@ void AEnemy::Tick(float DeltaTime)
 					if (!AnimInstance->Montage_IsPlaying(LeapMontage) && !AnimInstance->Montage_IsPlaying(AttackMontage)) 
 					{
 						AnimInstance->Montage_Play(LeapMontage);
-						int32 Selection = FMath::RandRange(0, 1);
+						int32 Selection = 0;
 						FName SectionName = FName();
-
-						if (ActorHasTag("BigMouth"))
-						{
-							Selection = 0; 
-						} 
 
 						switch (Selection)
 						{
 						case 0:
 							SectionName = FName("FirstAttack");
-							break;
-						case 1:
-							SectionName = FName("SecondAttack");
 							break;
 						default:
 							break;
