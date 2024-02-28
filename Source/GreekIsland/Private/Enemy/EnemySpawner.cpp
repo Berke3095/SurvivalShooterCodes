@@ -10,7 +10,7 @@
 // Sets default values
 AEnemySpawner::AEnemySpawner()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -19,54 +19,23 @@ void AEnemySpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MyCharacter = Cast<AMyCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)); 
-	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld()); 
+	MyCharacter = Cast<AMyCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
 // Called every frame
 void AEnemySpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (MyCharacter)
-	{
-		CharacterState = MyCharacter->GetCharacterState();
-
-		if (CharacterState == ECharacterState::ECS_EquippedRifle && !MyCharacter->bCharacterDead)
-		{
-			if (!bBasicSpawnTimerActive && NumOfBasics <= 30)
-			{
-				GetWorld()->GetTimerManager().SetTimer(BasicSpawnTimer, this, &AEnemySpawner::SpawnBasicAtRandom, BasicSpawnDelay);
-				bBasicSpawnTimerActive = true;
-				NumOfBasics++;
-			}
-			if (!bBigMouthSpawnTimerActive && NumOfBigMouth <= 5)
-			{
-				GetWorld()->GetTimerManager().SetTimer(BigMouthSpawnTimer, this, &AEnemySpawner::SpawnBigMouthAtRandom, BigMouthSpawnDelay);
-				bBigMouthSpawnTimerActive = true;
-				NumOfBigMouth++;
-			}
-			if (!bMutantSpawnTimerActive && NumOfMutant <= 1)
-			{
-				GetWorld()->GetTimerManager().SetTimer(MutantSpawnTimer, this, &AEnemySpawner::SpawnMutantAtRandom, MutantSpawnDelay);
-				bMutantSpawnTimerActive = true;
-				NumOfMutant++;
-			}
-		}
-	}
-	
-	//UE_LOG(LogTemp, Warning, TEXT("Number of Basics: %d"), NumOfBasics);
-	//UE_LOG(LogTemp, Warning, TEXT("Number of BigMouth: %d"), NumOfBigMouth); 
-	//UE_LOG(LogTemp, Warning, TEXT("Number of Mutant: %d"), NumOfMutant); 
-
 }
 
-void AEnemySpawner::SpawnEnemyAtRandom(int32 EnemyIndex, bool& bSpawnTimerActive, FTimerHandle& SpawnTimer)
+void AEnemySpawner::SpawnEnemyAtRandom(TArray<TSubclassOf<AActor>>EnemiesToSpawn)
 {
-	if (EnemiesToSpawn.Num() > 0 && EnemyIndex >= 0)
+	int32 EnemyIndex = FMath::RandRange(0, EnemiesToSpawn.Num() - 1);
+
+	if (EnemiesToSpawn.IsValidIndex(EnemyIndex))
 	{
 		UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
-		if (NavSys)
+		if (NavSys && MyCharacter)
 		{
 			FNavLocation RandomNavLocation;
 			FVector MyCharacterLocation = MyCharacter->GetActorLocation();
@@ -75,36 +44,48 @@ void AEnemySpawner::SpawnEnemyAtRandom(int32 EnemyIndex, bool& bSpawnTimerActive
 
 			while (!bValidSpawnPointFound)
 			{
-				if (NavSys->GetRandomPointInNavigableRadius(MyCharacterLocation, MaxSpawnRadius, RandomNavLocation))
+				if (NavSys->GetRandomReachablePointInRadius(MyCharacterLocation, MaxSpawnRadius, RandomNavLocation))
 				{
 					float Distance = FVector::Dist(MyCharacter->GetActorLocation(), RandomNavLocation);
 					if (Distance >= MinSpawnRadius)
 					{
+						// Generate a random value between 0 and 1
+						float RandomValue = FMath::FRand();
+
+						// Probabilities
+						if (RandomValue <= 0.08f)
+						{
+							EnemyIndex = 0; // 8% chance for index 0
+						}
+						else if (RandomValue <= 0.12f)
+						{
+							EnemyIndex = 1; // 12% chance for index 1
+						}
+						else
+						{
+							EnemyIndex = FMath::RandRange(2, 5); // 75% chance for indices 2 to 5(Basics)
+						}
+
 						FRotator Rotation = MyCharacter->GetActorRotation();
-						GetWorld()->SpawnActor<AActor>(EnemiesToSpawn[EnemyIndex], RandomNavLocation, Rotation);
-						bValidSpawnPointFound = true;
+						FVector EnemyNavLocationWithOffsetZ = FVector(RandomNavLocation) + FVector(0, 0, 100);
+						AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(EnemiesToSpawn[EnemyIndex], EnemyNavLocationWithOffsetZ, Rotation); 
+
+						if (SpawnedActor)
+						{
+							bValidSpawnPointFound = true;
+							bEnemySpawnTimerActive = true;
+							NumOfEnemy++;
+						}
 					}
 				}
 			}
 		}
 	}
-
-	GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
-	bSpawnTimerActive = false;
-}
-
-void AEnemySpawner::SpawnBasicAtRandom()
-{
-	SpawnEnemyAtRandom(FMath::RandRange(0, 3), bBasicSpawnTimerActive, BasicSpawnTimer);
-}
-
-void AEnemySpawner::SpawnBigMouthAtRandom()
-{
-	SpawnEnemyAtRandom(4, bBigMouthSpawnTimerActive, BigMouthSpawnTimer);
-}
-
-void AEnemySpawner::SpawnMutantAtRandom()
-{
-	SpawnEnemyAtRandom(5, bMutantSpawnTimerActive, MutantSpawnTimer);
+	
+	if (bEnemySpawnTimerActive)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(EnemySpawnTimer);
+		bEnemySpawnTimerActive = false;
+	}
 }
 

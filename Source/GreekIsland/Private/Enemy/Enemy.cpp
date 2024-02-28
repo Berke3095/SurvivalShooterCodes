@@ -132,12 +132,12 @@ void AEnemy::Tick(float DeltaTime)
 		bZombieDead = true;
 		if (bZombieDead && ActorHasTag("Mutant"))
 		{
-			EnemySpawner->NumOfMutant--;
+			EnemySpawner->NumOfEnemy--;
 		}
 
 		if (bZombieDead && ActorHasTag("BigMouth"))
 		{
-			EnemySpawner->NumOfBigMouth--;
+			EnemySpawner->NumOfEnemy--;
 		}
 
 		bDeathAnimPlayed = true;
@@ -158,22 +158,34 @@ void AEnemy::Tick(float DeltaTime)
 				case 0:
 					SectionName = FName("0");
 					DeathPose = EDeathPose::EDP_Dead0;
-					EnemySpawner->NumOfBasics--;
+					if (EnemySpawner)
+					{
+						EnemySpawner->NumOfEnemy--;
+					}
 					break;
 				case 1:
 					SectionName = FName("1");
 					DeathPose = EDeathPose::EDP_Dead1;
-					EnemySpawner->NumOfBasics--;
+					if (EnemySpawner)
+					{
+						EnemySpawner->NumOfEnemy--;
+					}
 					break;
 				case 2:
 					SectionName = FName("2");
 					DeathPose = EDeathPose::EDP_Dead2;
-					EnemySpawner->NumOfBasics--;
+					if (EnemySpawner)
+					{
+						EnemySpawner->NumOfEnemy--;
+					}
 					break;
 				case 3:
 					SectionName = FName("3");
 					DeathPose = EDeathPose::EDP_Dead3;
-					EnemySpawner->NumOfBasics--;
+					if (EnemySpawner)
+					{
+						EnemySpawner->NumOfEnemy--;
+					}
 					break;
 				default:
 					break;
